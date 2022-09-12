@@ -32,6 +32,7 @@
             (:send-report nil))
 
 (require 'mic)
+(require 'compat)
 
 (defmacro mic-ert-macroexpand-1 (name &rest args)
   "Define test named NAME.
