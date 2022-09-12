@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.1.0
+;; Version: 0.2.0
 ;; Package-Requires: ((emacs "24.1") (cl-lib "0.7"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -36,17 +36,29 @@
   :prefix "mic-"
   :link '(url-link "https://github.com/ROCKTAKEY/mic"))
 
-(cl-defmacro mic (&key custom)
+(cl-defmacro mic (name &key custom custom-after-load)
   "Minimal configuration manager.
 
 Optional argument CUSTOM."
-  `(progn
+  (declare (indent defun))
+  `(prog1 ',name
      ,@(mapcar
         (lambda (arg)
           `(customize-set-variable
             ',(car arg)
             ,(cdr arg)))
-        custom)))
+        custom)
+     ,@(and custom-after-load
+            (list
+             (append
+              `(with-eval-after-load ',name)
+              (mapcar
+               (lambda (arg)
+                 `(customize-set-variable
+                   ',(car arg)
+                   ,(cdr arg)))
+               custom-after-load))))
+     ))
 
 (provide 'mic)
 ;;; mic.el ends here

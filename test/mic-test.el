@@ -45,14 +45,25 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
         args)))
 
 (mic-ert-macroexpand-1 mic-custom
-  ((mic
-    :custom
-    ((a . 1)
-     (b . (+ 1 2))))
-   . (progn
+  ((mic package-name
+     :custom
+     ((a . 1)
+      (b . (+ 1 2))))
+   . (prog1 'package-name
        (customize-set-variable 'a 1)
        (customize-set-variable 'b
                                (+ 1 2)))))
+
+(mic-ert-macroexpand-1 mic-custom-after-load
+  ((mic package-name
+     :custom-after-load
+     ((a . 1)
+      (b . (+ 1 2))))
+   . (prog1 'package-name
+       (with-eval-after-load 'package-name
+         (customize-set-variable 'a 1)
+         (customize-set-variable 'b
+                                 (+ 1 2))))))
 
 
 (provide 'mic-test)
