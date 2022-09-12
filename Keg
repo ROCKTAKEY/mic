@@ -3,7 +3,7 @@
 (package (mic
           (recipe . (:fetcher github :repo "ROCKTAKEY/mic"))))
 
-(dev-dependency undercover compat)
+(dev-dependency undercover)
 
 (script
  (test
