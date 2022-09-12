@@ -5,8 +5,8 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.0.0
-;; Package-Requires: ((emacs "24.1"))
+;; Version: 0.1.0
+;; Package-Requires: ((emacs "24.1") (cl-lib "0.7"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -28,11 +28,25 @@
 
 ;;; Code:
 
+(require 'cl-lib)
+
 (defgroup mic ()
-  "Minimal configuration manager"
+  "Minimal configuration manager."
   :group 'convenience
   :prefix "mic-"
   :link '(url-link "https://github.com/ROCKTAKEY/mic"))
+
+(cl-defmacro mic (&key custom)
+  "Minimal configuration manager.
+
+Optional argument CUSTOM."
+  `(progn
+     ,@(mapcar
+        (lambda (arg)
+          `(customize-set-variable
+            ',(car arg)
+            ,(cdr arg)))
+        custom)))
 
 (provide 'mic)
 ;;; mic.el ends here
