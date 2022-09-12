@@ -39,7 +39,7 @@
 (cl-defmacro mic (name &key custom custom-after-load)
   "Minimal configuration manager.
 
-Optional argument CUSTOM."
+Optional argument CUSTOM, NAME."
   (declare (indent defun))
   `(prog1 ',name
      ,@(mapcar
