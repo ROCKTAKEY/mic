@@ -1,0 +1,9 @@
+[[https://github.com/ROCKTAKEY/mic][https://img.shields.io/github/tag/ROCKTAKEY/mic.svg?style=flat-square]]
+[[file:LICENSE][https://img.shields.io/github/license/ROCKTAKEY/mic.svg?style=flat-square]]
+[[https://codecov.io/gh/ROCKTAKEY/mic?branch=master][https://img.shields.io/codecov/c/github/ROCKTAKEY/mic.svg?style=flat-square]]
+[[https://github.com/ROCKTAKEY/mic/actions][https://img.shields.io/github/workflow/status/ROCKTAKEY/mic/test/master.svg?style=flat-square]]
+* mic: Minimal configuration manager
+
+* How to Use?
+* License
+  This package is licensed by GPLv3. See [[file:LICENSE][LICENSE]].
