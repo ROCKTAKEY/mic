@@ -84,5 +84,14 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
          (message "Hello")
          (message "World")))))
 
+(mic-ert-macroexpand-1 mic-hook
+  ((mic package-name
+     :hook
+     ((after-init-hook . #'ignore)
+      (prog-mode-hook . (lambda ()))))
+   . (prog1 'package-name
+       (add-hook 'after-init-hook #'ignore)
+       (add-hook 'prog-mode-hook (lambda ())))))
+
 (provide 'mic-test)
 ;;; mic-test.el ends here

@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.3.1
+;; Version: 0.4.0
 ;; Package-Requires: ((emacs "25.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -40,10 +40,11 @@
                        custom
                        custom-after-load
                        eval
-                       eval-after-load)
+                       eval-after-load
+                       hook)
   "Manage configuration of paackage named NAME.
 
-Optional argument CUSTOM, CUSTOM-AFTER-LOAD, EVAL, EVAL-AFTER-LOAD."
+Optional argument CUSTOM, CUSTOM-AFTER-LOAD, EVAL, EVAL-AFTER-LOAD, HOOK."
   (declare (indent defun))
   (let* ((sexp-custom (mapcar
                        (lambda (arg)
@@ -57,9 +58,14 @@ Optional argument CUSTOM, CUSTOM-AFTER-LOAD, EVAL, EVAL-AFTER-LOAD."
                                       ',(car arg)
                                       ,(cdr arg)))
                                   custom-after-load))
+         (sexp-hook (mapcar
+                     (lambda (arg)
+                       `(add-hook ',(car arg) ,(cdr arg)))
+                     hook))
 
          (total-eval (append eval
-                             sexp-custom))
+                             sexp-custom
+                             sexp-hook))
          (total-eval-after-load (append eval-after-load
                                         sexp-custom-after-load)))
     `(prog1 ',name
