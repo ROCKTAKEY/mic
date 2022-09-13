@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.2.1
+;; Version: 0.2.2
 ;; Package-Requires: ((emacs "25.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -36,7 +36,9 @@
   :prefix "mic-"
   :link '(url-link "https://github.com/ROCKTAKEY/mic"))
 
-(cl-defmacro mic (name &key custom custom-after-load)
+(cl-defmacro mic (name &key
+                       custom
+                       custom-after-load)
   "Minimal configuration manager.
 
 Optional argument CUSTOM, NAME."
