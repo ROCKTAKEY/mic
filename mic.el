@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.3.0
+;; Version: 0.3.1
 ;; Package-Requires: ((emacs "25.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -41,9 +41,9 @@
                        custom-after-load
                        eval
                        eval-after-load)
-  "Minimal configuration manager.
+  "Manage configuration of paackage named NAME.
 
-Optional argument CUSTOM, NAME."
+Optional argument CUSTOM, CUSTOM-AFTER-LOAD, EVAL, EVAL-AFTER-LOAD."
   (declare (indent defun))
   (let* ((sexp-custom (mapcar
                        (lambda (arg)
