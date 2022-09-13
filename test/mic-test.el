@@ -36,7 +36,7 @@
 (defmacro mic-ert-macroexpand-1 (name &rest args)
   "Define test named NAME.
 The test compare macro expandation of `car' of each element of ARGS with `cdr' of it."
- (declare (indent defun))
+  (declare (indent defun))
   `(ert-deftest ,name ()
      ,@(mapcar
         (lambda (arg)
