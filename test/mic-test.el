@@ -65,6 +65,24 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
          (customize-set-variable 'b
                                  (+ 1 2))))))
 
+(mic-ert-macroexpand-1 mic-eval
+  ((mic package-name
+     :eval
+     ((message "Hello")
+      (message "World")))
+   . (prog1 'package-name
+       (message "Hello")
+       (message "World"))))
+
+(mic-ert-macroexpand-1 mic-eval-after-load
+  ((mic package-name
+     :eval-after-load
+     ((message "Hello")
+      (message "World")))
+   . (prog1 'package-name
+       (with-eval-after-load 'package-name
+         (message "Hello")
+         (message "World")))))
 
 (provide 'mic-test)
 ;;; mic-test.el ends here

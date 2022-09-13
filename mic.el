@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.2.2
+;; Version: 0.3.0
 ;; Package-Requires: ((emacs "25.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -38,28 +38,37 @@
 
 (cl-defmacro mic (name &key
                        custom
-                       custom-after-load)
+                       custom-after-load
+                       eval
+                       eval-after-load)
   "Minimal configuration manager.
 
 Optional argument CUSTOM, NAME."
   (declare (indent defun))
-  `(prog1 ',name
-     ,@(mapcar
-        (lambda (arg)
-          `(customize-set-variable
-            ',(car arg)
-            ,(cdr arg)))
-        custom)
-     ,@(and custom-after-load
-            (list
-             (append
-              (list 'with-eval-after-load `',name)
-              (mapcar
-               (lambda (arg)
-                 `(customize-set-variable
-                   ',(car arg)
-                   ,(cdr arg)))
-               custom-after-load))))))
+  (let* ((sexp-custom (mapcar
+                       (lambda (arg)
+                         `(customize-set-variable
+                           ',(car arg)
+                           ,(cdr arg)))
+                       custom))
+         (sexp-custom-after-load (mapcar
+                                  (lambda (arg)
+                                    `(customize-set-variable
+                                      ',(car arg)
+                                      ,(cdr arg)))
+                                  custom-after-load))
+
+         (total-eval (append eval
+                             sexp-custom))
+         (total-eval-after-load (append eval-after-load
+                                        sexp-custom-after-load)))
+    `(prog1 ',name
+       ,@total-eval
+       ,@(and total-eval-after-load
+              (list
+               (append
+                (list 'with-eval-after-load `',name)
+                total-eval-after-load))))))
 
 (provide 'mic)
 ;;; mic.el ends here
