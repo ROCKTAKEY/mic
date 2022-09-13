@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.4.2
+;; Version: 0.5.0
 ;; Package-Requires: ((emacs "25.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -50,6 +50,22 @@
        ,(cdr arg)))
    alist))
 
+(defsubst mic-make-sexp-define-key (alist)
+  "Create `define-key' sexp from ALIST.
+`car' of each element is keymap, and `cdr' is list whose element is
+\(KEY-STRING . COMMAND)."
+  (cl-mapcan
+   (lambda (keymap-binds-alist)
+     (let ((keymap (car keymap-binds-alist))
+           (binds (cdr keymap-binds-alist)))
+       (mapcar
+        (lambda (bind)
+          (let ((key (car bind))
+                (command (cdr bind)))
+            `(define-key ,keymap (kbd ,key) ,command)))
+        binds)))
+   alist))
+
 (defsubst mic-make-sexp-hook (alist)
   "Create `add-hook' sexp from ALIST.
 `car' of each element is HOOK, and `cdr' is FUNCTION."
@@ -61,12 +77,15 @@
 (cl-defmacro mic (name &key
                        custom
                        custom-after-load
+                       define-key
+                       define-key-after-load
                        eval
                        eval-after-load
                        hook)
   "Manage configuration of paackage named NAME.
 
-Optional argument CUSTOM, CUSTOM-AFTER-LOAD, EVAL, EVAL-AFTER-LOAD, HOOK."
+Optional argument CUSTOM, CUSTOM-AFTER-LOAD, DEFINE-KEY, DEFINE-KEY-AFTER-LOAD,
+EVAL, EVAL-AFTER-LOAD, HOOK."
   (declare (indent defun))
   ;; CUSTOM
   (let ((sexp (mic-make-sexp-custom custom)))
@@ -74,6 +93,14 @@ Optional argument CUSTOM, CUSTOM-AFTER-LOAD, EVAL, EVAL-AFTER-LOAD, HOOK."
 
   ;; CUSTOM-AFTER-LOAD
   (let ((sexp (mic-make-sexp-custom custom-after-load)))
+    (mic-setappend eval-after-load sexp))
+
+  ;; DEFINE-KEY
+  (let ((sexp (mic-make-sexp-define-key define-key)))
+    (mic-setappend eval sexp))
+
+  ;; DEFINE-KEY-AFTER-LOAD
+  (let ((sexp (mic-make-sexp-define-key define-key-after-load)))
     (mic-setappend eval-after-load sexp))
 
   ;; HOOK

@@ -84,6 +84,37 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
          (message "Hello")
          (message "World")))))
 
+(mic-ert-macroexpand-1 mic-define-key
+  ((mic package-name
+     :define-key
+     ((global-map
+       ("C-t" . #'other-window)
+       ("C-n" . #'next-window))
+      (prog-mode-map
+       ("M-a" . #'beginning-of-buffer)
+       ("M-e" . #'end-of-buffer))))
+   . (prog1 'package-name
+       (define-key global-map (kbd "C-t") #'other-window)
+       (define-key global-map (kbd "C-n") #'next-window)
+       (define-key prog-mode-map (kbd "M-a") #'beginning-of-buffer)
+       (define-key prog-mode-map (kbd "M-e") #'end-of-buffer))))
+
+(mic-ert-macroexpand-1 mic-define-key-after-load
+  ((mic package-name
+     :define-key-after-load
+     ((c-mode-map
+       ("C-t" . #'other-window)
+       ("C-n" . #'next-window))
+      (c++-mode-map
+       ("M-a" . #'beginning-of-buffer)
+       ("M-e" . #'end-of-buffer))))
+   . (prog1 'package-name
+       (with-eval-after-load 'package-name
+         (define-key c-mode-map (kbd "C-t") #'other-window)
+         (define-key c-mode-map (kbd "C-n") #'next-window)
+         (define-key c++-mode-map (kbd "M-a") #'beginning-of-buffer)
+         (define-key c++-mode-map (kbd "M-e") #'end-of-buffer)))))
+
 (mic-ert-macroexpand-1 mic-hook
   ((mic package-name
      :hook
