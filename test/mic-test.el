@@ -102,6 +102,24 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
          (message "Hello")
          (message "World")))))
 
+(mic-ert-macroexpand-1 mic-declare-function
+  ((mic package-name
+     :declare-function
+     (find-file
+      write-file))
+   . (prog1 'package-name
+       (declare-function find-file "ext:package-name")
+       (declare-function write-file "ext:package-name"))))
+
+(mic-ert-macroexpand-1 mic-defvar-noninitial
+  ((mic package-name
+     :defvar-noninitial
+     (skk-jisyo
+      skk-use-azik))
+   . (prog1 'package-name
+       (defvar skk-jisyo)
+       (defvar skk-use-azik))))
+
 (mic-ert-macroexpand-1 mic-define-key
   ((mic package-name
      :define-key

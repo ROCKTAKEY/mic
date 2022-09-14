@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.6.0
+;; Version: 0.7.0
 ;; Package-Requires: ((emacs "25.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -50,6 +50,14 @@
        ,(cdr arg)))
    alist))
 
+(defsubst mic-make-sexp-declare-function (name list)
+  "Create `declare-function' sexp from LIST and NAME.
+Each element of LIST is function which should be declared."
+  (mapcar
+   (lambda (arg)
+     `(declare-function ,arg ,(concat "ext:" (symbol-name name))))
+   list))
+
 (defsubst mic-make-sexp-define-key (alist)
   "Create `define-key' sexp from ALIST.
 `car' of each element is keymap, and `cdr' is list whose element is
@@ -65,6 +73,14 @@
             `(define-key ,keymap (kbd ,key) ,command)))
         binds)))
    alist))
+
+(defsubst mic-make-sexp-defvar-noninitial (list)
+  "Create `defvar' sexp from LIST and NAME.
+Each element of LIST is variable which should be declared."
+  (mapcar
+   (lambda (arg)
+     `(defvar ,arg))
+   list))
 
 (defsubst mic-make-sexp-autoload-interactive (name list)
   "Create `autoload' sexp from LIST and NAME.
@@ -97,8 +113,10 @@ and NAME is feature."
                        autoload-nonintaractive
                        custom
                        custom-after-load
+                       declare-function
                        define-key
                        define-key-after-load
+                       defvar-noninitial
                        eval
                        eval-after-load
                        hook)
@@ -123,6 +141,10 @@ EVAL, EVAL-AFTER-LOAD, HOOK."
   (let ((sexp (mic-make-sexp-custom custom-after-load)))
     (mic-setappend eval-after-load sexp))
 
+  ;; DECLARE-FUNCTION
+  (let ((sexp (mic-make-sexp-declare-function name declare-function)))
+    (mic-setappend eval sexp))
+
   ;; DEFINE-KEY
   (let ((sexp (mic-make-sexp-define-key define-key)))
     (mic-setappend eval sexp))
@@ -130,6 +152,10 @@ EVAL, EVAL-AFTER-LOAD, HOOK."
   ;; DEFINE-KEY-AFTER-LOAD
   (let ((sexp (mic-make-sexp-define-key define-key-after-load)))
     (mic-setappend eval-after-load sexp))
+
+  ;; DEFVAR-NONINITIAL
+  (let ((sexp (mic-make-sexp-defvar-noninitial defvar-noninitial)))
+    (mic-setappend eval sexp))
 
   ;; HOOK
   (let ((sexp (mic-make-sexp-hook hook)))
