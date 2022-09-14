@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.5.0
+;; Version: 0.6.0
 ;; Package-Requires: ((emacs "25.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -66,6 +66,24 @@
         binds)))
    alist))
 
+(defsubst mic-make-sexp-autoload-interactive (name list)
+  "Create `autoload' sexp from LIST and NAME.
+Each element of LIST is interactive function which should be autoloaded,
+and NAME is feature."
+  (mapcar
+   (lambda (arg)
+     `(autoload #',arg ,(symbol-name name) nil t))
+   list))
+
+(defsubst mic-make-sexp-autoload-noninteractive (name list)
+  "Create `autoload' sexp from LIST and NAME.
+Each element of LIST is non-interactive function which should be autoloaded,
+and NAME is feature."
+  (mapcar
+   (lambda (arg)
+     `(autoload #',arg ,(symbol-name name)))
+   list))
+
 (defsubst mic-make-sexp-hook (alist)
   "Create `add-hook' sexp from ALIST.
 `car' of each element is HOOK, and `cdr' is FUNCTION."
@@ -75,6 +93,8 @@
    alist))
 
 (cl-defmacro mic (name &key
+                       autoload-intaractive
+                       autoload-nonintaractive
                        custom
                        custom-after-load
                        define-key
@@ -87,6 +107,14 @@
 Optional argument CUSTOM, CUSTOM-AFTER-LOAD, DEFINE-KEY, DEFINE-KEY-AFTER-LOAD,
 EVAL, EVAL-AFTER-LOAD, HOOK."
   (declare (indent defun))
+  ;; AUTOLOAD-INTERACTIVE
+  (let ((sexp (mic-make-sexp-autoload-interactive name autoload-intaractive)))
+    (mic-setappend eval sexp))
+
+  ;; AUTOLOAD-NONINTERACTIVE
+  (let ((sexp (mic-make-sexp-autoload-noninteractive name autoload-nonintaractive)))
+    (mic-setappend eval sexp))
+
   ;; CUSTOM
   (let ((sexp (mic-make-sexp-custom custom)))
     (mic-setappend eval sexp))

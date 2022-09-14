@@ -44,6 +44,24 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
                           ',(cdr arg))))
         args)))
 
+(mic-ert-macroexpand-1 mic-autoload-interactive
+  ((mic package-name
+     :autoload-intaractive
+     (find-file
+      write-file))
+   . (prog1 'package-name
+       (autoload #'find-file "package-name" nil t)
+       (autoload #'write-file "package-name" nil t))))
+
+(mic-ert-macroexpand-1 mic-autoload-noninteractive
+  ((mic package-name
+     :autoload-nonintaractive
+     (cl-map
+      cl-mapcar))
+   . (prog1 'package-name
+       (autoload #'cl-map "package-name")
+       (autoload #'cl-mapcar "package-name"))))
+
 (mic-ert-macroexpand-1 mic-custom
   ((mic package-name
      :custom
