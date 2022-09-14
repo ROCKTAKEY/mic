@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.7.0
+;; Version: 0.7.1
 ;; Package-Requires: ((emacs "25.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -39,6 +39,24 @@
 (defmacro mic-setappend (var val)
   "Append and set VAL to VAR."
   `(setq ,var (append ,var ,val)))
+
+(defsubst mic-make-sexp-autoload-interactive (name list)
+  "Create `autoload' sexp from LIST and NAME.
+Each element of LIST is interactive function which should be autoloaded,
+and NAME is feature."
+  (mapcar
+   (lambda (arg)
+     `(autoload #',arg ,(symbol-name name) nil t))
+   list))
+
+(defsubst mic-make-sexp-autoload-noninteractive (name list)
+  "Create `autoload' sexp from LIST and NAME.
+Each element of LIST is non-interactive function which should be autoloaded,
+and NAME is feature."
+  (mapcar
+   (lambda (arg)
+     `(autoload #',arg ,(symbol-name name)))
+   list))
 
 (defsubst mic-make-sexp-custom (alist)
   "Create `customize-set-variable' sexp from ALIST.
@@ -80,24 +98,6 @@ Each element of LIST is variable which should be declared."
   (mapcar
    (lambda (arg)
      `(defvar ,arg))
-   list))
-
-(defsubst mic-make-sexp-autoload-interactive (name list)
-  "Create `autoload' sexp from LIST and NAME.
-Each element of LIST is interactive function which should be autoloaded,
-and NAME is feature."
-  (mapcar
-   (lambda (arg)
-     `(autoload #',arg ,(symbol-name name) nil t))
-   list))
-
-(defsubst mic-make-sexp-autoload-noninteractive (name list)
-  "Create `autoload' sexp from LIST and NAME.
-Each element of LIST is non-interactive function which should be autoloaded,
-and NAME is feature."
-  (mapcar
-   (lambda (arg)
-     `(autoload #',arg ,(symbol-name name)))
    list))
 
 (defsubst mic-make-sexp-hook (alist)
