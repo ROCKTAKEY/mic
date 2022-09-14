@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.7.1
+;; Version: 0.7.2
 ;; Package-Requires: ((emacs "25.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -122,8 +122,9 @@ Each element of LIST is variable which should be declared."
                        hook)
   "Manage configuration of paackage named NAME.
 
-Optional argument CUSTOM, CUSTOM-AFTER-LOAD, DEFINE-KEY, DEFINE-KEY-AFTER-LOAD,
-EVAL, EVAL-AFTER-LOAD, HOOK."
+Optional argument AUTOLOAD-INTARACTIVE, AUTOLOAD-NONINTARACTIVE, CUSTOM,
+CUSTOM-AFTER-LOAD, DECLARE-FUNCTION, DEFINE-KEY, DEFINE-KEY-AFTER-LOAD,
+DEFVAR-NONINITIAL, EVAL, EVAL-AFTER-LOAD, HOOK."
   (declare (indent defun))
   ;; AUTOLOAD-INTERACTIVE
   (let ((sexp (mic-make-sexp-autoload-interactive name autoload-intaractive)))
