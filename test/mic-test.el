@@ -83,6 +83,55 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
          (customize-set-variable 'b
                                  (+ 1 2))))))
 
+(mic-ert-macroexpand-1 mic-declare-function
+  ((mic package-name
+     :declare-function
+     (find-file
+      write-file))
+   . (prog1 'package-name
+       (declare-function find-file "ext:package-name")
+       (declare-function write-file "ext:package-name"))))
+
+(mic-ert-macroexpand-1 mic-define-key
+  ((mic package-name
+     :define-key
+     ((global-map
+       ("C-t" . #'other-window)
+       ("C-n" . #'next-window))
+      (prog-mode-map
+       ("M-a" . #'beginning-of-buffer)
+       ("M-e" . #'end-of-buffer))))
+   . (prog1 'package-name
+       (define-key global-map (kbd "C-t") #'other-window)
+       (define-key global-map (kbd "C-n") #'next-window)
+       (define-key prog-mode-map (kbd "M-a") #'beginning-of-buffer)
+       (define-key prog-mode-map (kbd "M-e") #'end-of-buffer))))
+
+(mic-ert-macroexpand-1 mic-define-key-after-load
+  ((mic package-name
+     :define-key-after-load
+     ((c-mode-map
+       ("C-t" . #'other-window)
+       ("C-n" . #'next-window))
+      (c++-mode-map
+       ("M-a" . #'beginning-of-buffer)
+       ("M-e" . #'end-of-buffer))))
+   . (prog1 'package-name
+       (with-eval-after-load 'package-name
+         (define-key c-mode-map (kbd "C-t") #'other-window)
+         (define-key c-mode-map (kbd "C-n") #'next-window)
+         (define-key c++-mode-map (kbd "M-a") #'beginning-of-buffer)
+         (define-key c++-mode-map (kbd "M-e") #'end-of-buffer)))))
+
+(mic-ert-macroexpand-1 mic-defvar-noninitial
+  ((mic package-name
+     :defvar-noninitial
+     (skk-jisyo
+      skk-use-azik))
+   . (prog1 'package-name
+       (defvar skk-jisyo)
+       (defvar skk-use-azik))))
+
 (mic-ert-macroexpand-1 mic-eval
   ((mic package-name
      :eval
@@ -140,55 +189,6 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
           "~/skk-jisyo")
          (message "after")
          (message "custom")))))
-
-(mic-ert-macroexpand-1 mic-declare-function
-  ((mic package-name
-     :declare-function
-     (find-file
-      write-file))
-   . (prog1 'package-name
-       (declare-function find-file "ext:package-name")
-       (declare-function write-file "ext:package-name"))))
-
-(mic-ert-macroexpand-1 mic-defvar-noninitial
-  ((mic package-name
-     :defvar-noninitial
-     (skk-jisyo
-      skk-use-azik))
-   . (prog1 'package-name
-       (defvar skk-jisyo)
-       (defvar skk-use-azik))))
-
-(mic-ert-macroexpand-1 mic-define-key
-  ((mic package-name
-     :define-key
-     ((global-map
-       ("C-t" . #'other-window)
-       ("C-n" . #'next-window))
-      (prog-mode-map
-       ("M-a" . #'beginning-of-buffer)
-       ("M-e" . #'end-of-buffer))))
-   . (prog1 'package-name
-       (define-key global-map (kbd "C-t") #'other-window)
-       (define-key global-map (kbd "C-n") #'next-window)
-       (define-key prog-mode-map (kbd "M-a") #'beginning-of-buffer)
-       (define-key prog-mode-map (kbd "M-e") #'end-of-buffer))))
-
-(mic-ert-macroexpand-1 mic-define-key-after-load
-  ((mic package-name
-     :define-key-after-load
-     ((c-mode-map
-       ("C-t" . #'other-window)
-       ("C-n" . #'next-window))
-      (c++-mode-map
-       ("M-a" . #'beginning-of-buffer)
-       ("M-e" . #'end-of-buffer))))
-   . (prog1 'package-name
-       (with-eval-after-load 'package-name
-         (define-key c-mode-map (kbd "C-t") #'other-window)
-         (define-key c-mode-map (kbd "C-n") #'next-window)
-         (define-key c++-mode-map (kbd "M-a") #'beginning-of-buffer)
-         (define-key c++-mode-map (kbd "M-e") #'end-of-buffer)))))
 
 (mic-ert-macroexpand-1 mic-face
   ((mic package-name
