@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.8.0
+;; Version: 0.9.0
 ;; Package-Requires: ((emacs "25.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -130,13 +130,16 @@ Each element of LIST is variable which should be declared."
                        defvar-noninitial
                        eval
                        eval-after-load
+                       eval-after-others
+                       eval-after-others-after-load
                        face
                        hook)
   "Manage configuration of paackage named NAME.
 
 Optional argument AUTOLOAD-INTARACTIVE, AUTOLOAD-NONINTARACTIVE, CUSTOM,
 CUSTOM-AFTER-LOAD, DECLARE-FUNCTION, DEFINE-KEY, DEFINE-KEY-AFTER-LOAD,
-DEFVAR-NONINITIAL, EVAL, EVAL-AFTER-LOAD, FACE, HOOK."
+DEFVAR-NONINITIAL, EVAL, EVAL-AFTER-LOAD, EVAL-AFTER-OTHERS,
+EVAL-AFTER-OTHERS-AFTER-LOAD, FACE, HOOK."
   (declare (indent defun))
   ;; AUTOLOAD-INTERACTIVE
   (let ((sexp (mic-make-sexp-autoload-interactive name autoload-intaractive)))
@@ -181,11 +184,14 @@ DEFVAR-NONINITIAL, EVAL, EVAL-AFTER-LOAD, FACE, HOOK."
   ;; Result
   `(prog1 ',name
      ,@eval
-     ,@(and eval-after-load
+     ,@eval-after-others
+     ,@(and (or eval-after-load
+                eval-after-others-after-load)
             (list
              (append
               (list 'with-eval-after-load `',name)
-              eval-after-load)))))
+              eval-after-load
+              eval-after-others-after-load)))))
 
 (provide 'mic)
 ;;; mic.el ends here
