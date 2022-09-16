@@ -151,6 +151,20 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
          (define-key c++-mode-map (kbd "M-a") #'beginning-of-buffer)
          (define-key c++-mode-map (kbd "M-e") #'end-of-buffer)))))
 
+(mic-ert-macroexpand-1 mic-face
+  ((mic package-name
+     :face
+     ((aw-leading-char-face
+       . ((t (:foreground "red" :height 10.0))))
+      (aw-mode-line-face
+       . ((t (:background "#006000" :foreground "white" :bold t))))))
+   . (prog1 'package-name
+       (custom-set-faces
+        '(aw-leading-char-face
+          ((t (:foreground "red" :height 10.0))))
+        '(aw-mode-line-face
+          ((t (:background "#006000" :foreground "white" :bold t))))))))
+
 (mic-ert-macroexpand-1 mic-hook
   ((mic package-name
      :hook

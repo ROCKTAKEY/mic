@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.7.2
+;; Version: 0.8.0
 ;; Package-Requires: ((emacs "25.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -100,6 +100,17 @@ Each element of LIST is variable which should be declared."
      `(defvar ,arg))
    list))
 
+(defsubst mic-make-sexp-face (alist)
+  "Create `custom-set-faces' sexp from ALIST.
+`car' of each element is FACE, and `cdr' is VALUE."
+  (and alist
+       `((custom-set-faces
+          ,@(mapcan
+             (lambda (arg)
+               `('(,(car arg)
+                   ,(cdr arg))))
+             alist)))))
+
 (defsubst mic-make-sexp-hook (alist)
   "Create `add-hook' sexp from ALIST.
 `car' of each element is HOOK, and `cdr' is FUNCTION."
@@ -119,12 +130,13 @@ Each element of LIST is variable which should be declared."
                        defvar-noninitial
                        eval
                        eval-after-load
+                       face
                        hook)
   "Manage configuration of paackage named NAME.
 
 Optional argument AUTOLOAD-INTARACTIVE, AUTOLOAD-NONINTARACTIVE, CUSTOM,
 CUSTOM-AFTER-LOAD, DECLARE-FUNCTION, DEFINE-KEY, DEFINE-KEY-AFTER-LOAD,
-DEFVAR-NONINITIAL, EVAL, EVAL-AFTER-LOAD, HOOK."
+DEFVAR-NONINITIAL, EVAL, EVAL-AFTER-LOAD, FACE, HOOK."
   (declare (indent defun))
   ;; AUTOLOAD-INTERACTIVE
   (let ((sexp (mic-make-sexp-autoload-interactive name autoload-intaractive)))
@@ -156,6 +168,10 @@ DEFVAR-NONINITIAL, EVAL, EVAL-AFTER-LOAD, HOOK."
 
   ;; DEFVAR-NONINITIAL
   (let ((sexp (mic-make-sexp-defvar-noninitial defvar-noninitial)))
+    (mic-setappend eval sexp))
+
+  ;; FACE
+  (let ((sexp (mic-make-sexp-face face)))
     (mic-setappend eval sexp))
 
   ;; HOOK
