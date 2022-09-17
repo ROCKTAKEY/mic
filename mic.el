@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.11.1
+;; Version: 0.11.2
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -160,8 +160,9 @@ Each element is package symbol."
 
 Optional argument AUTOLOAD-INTARACTIVE, AUTOLOAD-NONINTARACTIVE, CUSTOM,
 CUSTOM-AFTER-LOAD, DECLARE-FUNCTION, DEFINE-KEY, DEFINE-KEY-AFTER-LOAD,
-DEFVAR-NONINITIAL, EVAL, EVAL-AFTER-LOAD, EVAL-AFTER-OTHERS,
-EVAL-AFTER-OTHERS-AFTER-LOAD, EVAL-BEFORE-ALL, FACE, HOOK, PACKAGE."
+DEFINE-KEY-WITH-FEATURE, DEFVAR-NONINITIAL, EVAL, EVAL-AFTER-LOAD,
+EVAL-AFTER-OTHERS, EVAL-AFTER-OTHERS-AFTER-LOAD, EVAL-BEFORE-ALL, FACE, HOOK,
+PACKAGE."
   (declare (indent defun))
   ;; AUTOLOAD-INTERACTIVE
   (let ((sexp (mic-make-sexp-autoload-interactive name autoload-intaractive)))
