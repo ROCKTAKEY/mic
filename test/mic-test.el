@@ -190,6 +190,25 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
          (message "after")
          (message "custom")))))
 
+(mic-ert-macroexpand-1 mic-eval-before-all
+  ((mic package-name
+     :custom
+     ((skk-jisyo . "~/skk-jisyo"))
+     :eval
+     ((message "before")
+      (message "custom"))
+     :eval-before-all
+     ((message "before")
+      (message "all")))
+   . (prog1 'package-name
+       (message "before")
+       (message "all")
+       (message "before")
+       (message "custom")
+       (customize-set-variable
+        'skk-jisyo
+        "~/skk-jisyo"))))
+
 (mic-ert-macroexpand-1 mic-face
   ((mic package-name
      :face
