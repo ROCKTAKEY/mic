@@ -123,6 +123,28 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
          (define-key c++-mode-map (kbd "M-a") #'beginning-of-buffer)
          (define-key c++-mode-map (kbd "M-e") #'end-of-buffer)))))
 
+(mic-ert-macroexpand-1 mic-define-key-with-feature
+  ((mic package-name
+     :define-key-with-feature
+     ((cc-mode
+       (c-mode-map
+        ("C-t" . #'other-window)
+        ("C-n" . #'next-window))
+       (c++-mode-map
+        ("M-a" . #'beginning-of-buffer)
+        ("M-e" . #'end-of-buffer)))
+      (python
+       (python-mode-map
+        ("C-t" . #'python-check)))))
+   . (prog1 'package-name
+       (with-eval-after-load 'cc-mode
+         (define-key c-mode-map (kbd "C-t") #'other-window)
+         (define-key c-mode-map (kbd "C-n") #'next-window)
+         (define-key c++-mode-map (kbd "M-a") #'beginning-of-buffer)
+         (define-key c++-mode-map (kbd "M-e") #'end-of-buffer))
+       (with-eval-after-load 'python
+         (define-key python-mode-map (kbd "C-t") #'python-check)))))
+
 (mic-ert-macroexpand-1 mic-defvar-noninitial
   ((mic package-name
      :defvar-noninitial

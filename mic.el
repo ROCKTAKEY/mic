@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.10.0
+;; Version: 0.11.0
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -92,6 +92,16 @@ Each element of LIST is function which should be declared."
         binds)))
    alist))
 
+(defsubst mic-make-sexp-define-key-with-feature (alist)
+  "Create `define-key' sexp from ALIST with `with-eval-after-load'.
+`car' of each element of ALIST is FEATURE.
+`cdr' of each element of ALIST is same as ALIST of `mic-make-sexp-define-key'."
+  (mapcar
+   (lambda (cons)
+     `(with-eval-after-load ',(car cons)
+        ,@(mic-make-sexp-define-key (cdr cons))))
+   alist))
+
 (defsubst mic-make-sexp-defvar-noninitial (list)
   "Create `defvar' sexp from LIST and NAME.
 Each element of LIST is variable which should be declared."
@@ -136,6 +146,7 @@ Each element is package symbol."
                        declare-function
                        define-key
                        define-key-after-load
+                       define-key-with-feature
                        defvar-noninitial
                        eval
                        eval-after-load
@@ -179,6 +190,10 @@ EVAL-AFTER-OTHERS-AFTER-LOAD, EVAL-BEFORE-ALL, FACE, HOOK, PACKAGE."
   ;; DEFINE-KEY-AFTER-LOAD
   (let ((sexp (mic-make-sexp-define-key define-key-after-load)))
     (mic-setappend eval-after-load sexp))
+
+  ;; DEFINE-KEY-WITH-FEATURE
+  (let ((sexp (mic-make-sexp-define-key-with-feature define-key-with-feature)))
+    (mic-setappend eval sexp))
 
   ;; DEFVAR-NONINITIAL
   (let ((sexp (mic-make-sexp-defvar-noninitial defvar-noninitial)))
