@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.9.1
+;; Version: 0.10.0
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -119,6 +119,15 @@ Each element of LIST is variable which should be declared."
      `(add-hook ',(car arg) ,(cdr arg)))
    alist))
 
+(defsubst mic-make-sexp-package (list)
+  "Create `package-install' sexp from LIST.
+Each element is package symbol."
+  (mapcar
+   (lambda (arg)
+     `(unless (package-installed-p ',arg)
+        (package-install ',arg)))
+   list))
+
 (cl-defmacro mic (name &key
                        autoload-intaractive
                        autoload-nonintaractive
@@ -132,14 +141,16 @@ Each element of LIST is variable which should be declared."
                        eval-after-load
                        eval-after-others
                        eval-after-others-after-load
+                       eval-before-all
                        face
-                       hook)
+                       hook
+                       package)
   "Manage configuration of paackage named NAME.
 
 Optional argument AUTOLOAD-INTARACTIVE, AUTOLOAD-NONINTARACTIVE, CUSTOM,
 CUSTOM-AFTER-LOAD, DECLARE-FUNCTION, DEFINE-KEY, DEFINE-KEY-AFTER-LOAD,
 DEFVAR-NONINITIAL, EVAL, EVAL-AFTER-LOAD, EVAL-AFTER-OTHERS,
-EVAL-AFTER-OTHERS-AFTER-LOAD, FACE, HOOK."
+EVAL-AFTER-OTHERS-AFTER-LOAD, EVAL-BEFORE-ALL, FACE, HOOK, PACKAGE."
   (declare (indent defun))
   ;; AUTOLOAD-INTERACTIVE
   (let ((sexp (mic-make-sexp-autoload-interactive name autoload-intaractive)))
@@ -181,8 +192,13 @@ EVAL-AFTER-OTHERS-AFTER-LOAD, FACE, HOOK."
   (let ((sexp (mic-make-sexp-hook hook)))
     (mic-setappend eval sexp))
 
+  ;; PACKAGE
+  (let ((sexp (mic-make-sexp-package package)))
+    (mic-setappend eval-before-all sexp))
+
   ;; Result
   `(prog1 ',name
+     ,@eval-before-all
      ,@eval
      ,@eval-after-others
      ,@(and (or eval-after-load
