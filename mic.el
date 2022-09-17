@@ -5,8 +5,8 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.9.0
-;; Package-Requires: ((emacs "25.1"))
+;; Version: 0.9.1
+;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
 ;; This program is free software; you can redistribute it and/or modify
