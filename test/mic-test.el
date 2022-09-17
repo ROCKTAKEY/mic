@@ -232,7 +232,7 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
        (add-hook 'after-init-hook #'ignore)
        (add-hook 'prog-mode-hook (lambda ())))))
 
-(mic-ert-macroexpand-1 mic-declare-function
+(mic-ert-macroexpand-1 mic-package
   ((mic package-name
      :package
      (package-1
