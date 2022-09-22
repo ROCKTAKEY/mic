@@ -386,5 +386,63 @@ It return PLIST but each value on some property below is appended:
     (should (equal (plist-get result :foo) '(1 t)))
     (should (equal (plist-get result :bar) '(2 3 4)))))
 
+(mic-ert-macroexpand-1 mic-apply-filter
+  ((mic-apply-filter plist name-var
+     filter1
+     filter2
+     filter3)
+   . (progn
+       (mic--plist-put plist :name name-var)
+       (setq plist
+             (thread-last plist filter1 filter2 filter3))
+       (mic--plist-delete plist :name))))
+
+(mic-ert-macroexpand-1 mic-defmic-macroexpand-1
+  ((mic-defmic macro-name parent-name
+     "docstring"
+     :filters (filter1 filter2))
+   . (defmacro macro-name (name &rest plist)
+       "docstring"
+       (declare (indent defun))
+       (mic-apply-filter plist name
+         filter1 filter2)
+       (backquote
+        (parent-name ,name ,@plist))))
+  ((mic-defmic macro-name parent-name
+     :filters (filter1 filter2))
+   . (defmacro macro-name (name &rest plist)
+       "`mic' alternative defined by `mic-defmic'.
+Argument NAME, PLIST. Used filters are:
+- `filter1'
+- `filter2'"
+       (declare (indent defun))
+       (mic-apply-filter plist name
+         filter1 filter2)
+       (backquote
+        (parent-name ,name ,@plist)))))
+
+(mic-deffilter-const-append mic-test-filter-const-1
+    :foo '(1)
+    :bar '(2 3))
+
+(mic-deffilter-const-append mic-test-filter-const-2
+  :foo '(4 5)
+  :baz '(6 7))
+
+(mic-defmic mic-test-mic-defmic-filters parent-name
+  :filters (mic-test-filter-const-1 mic-test-filter-const-2))
+
+(mic-ert-macroexpand-1 mic-defmic-filters
+  ((mic-test-mic-defmic-filters package-name
+     :foo (123)
+     :bar (456))
+   . (parent-name package-name
+                  :foo
+                  (123 1 4 5)
+                  :bar
+                  (456 2 3)
+                  :baz
+                  (6 7))))
+
 (provide 'mic-test)
 ;;; mic-test.el ends here

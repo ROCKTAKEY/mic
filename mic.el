@@ -213,6 +213,53 @@ It return PLIST but each value on some property below is appended:
          (nreverse result))
      plist))
 
+
+
+(defmacro mic-apply-filter (plist name &rest filters)
+  "Apply FILTERS to PLIST.
+NAME is temporarily added to PLIST on :name property."
+  (declare (indent defun))
+  `(progn
+     (mic--plist-put ,plist :name ,name)
+     (setq ,plist (thread-last
+                    ,plist
+                    ,@filters))
+     (mic--plist-delete ,plist :name)))
+
+(cl-defmacro mic-defmic (name parent docstring &rest plist)
+  "Define new `mic' named NAME derived from PARENT.
+DOCSTRING is docuent of it.
+FILTERS is list of filter, which recieve plist and return plist.
+The recieved plist has property `:name', which is package name.
+It also has other properties from other filter before.
+
+The defined macro recieves two arguments, NAME and PLIST.
+PLIST is filtered by each FILTERS in order and passed to PARENT.
+
+\(fn NAME PARENT [DOCSTRING] &key FILTERS)"
+  (declare (indent defun))
+  (unless (stringp docstring)
+    (push docstring plist)
+    (setq docstring nil))
+  (let ((filters (plist-get plist :filters)))
+    `(defmacro ,name (name &rest plist)
+       ,(or docstring
+            (format "`mic' alternative defined by `mic-defmic'.
+Argument NAME, PLIST. Used filters are:
+%s"
+                    (mapconcat
+                     (lambda (arg)
+                       (concat "- `" (pp-to-string arg) "'"))
+                     filters
+                     "\n")))
+       (declare (indent defun))
+       (mic-apply-filter plist name
+         ,@filters)
+       (backquote
+        ,`(,parent
+           ,',name
+           ,',@plist)))))
+
 (cl-defmacro mic (name &key
                        autoload-intaractive
                        autoload-nonintaractive
