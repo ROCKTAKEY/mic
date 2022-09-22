@@ -294,6 +294,26 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
     (mic--plist-put-append plist :baz '(3))
     (should (equal (plist-get plist :baz) '(3)))))
 
+(ert-deftest mic--plist-delete ()
+  (let ((plist '(:foo 1 :bar 2)))
+    (mic--plist-delete plist :foo)
+    (should-not (plist-get plist :foo))
+    (should (eq (plist-get plist :bar) 2))
+    (should (equal plist '(:bar 2))))
+
+  (let ((plist '(:foo 1 :bar 2)))
+    (mic--plist-delete plist :bar)
+    (should (eq (plist-get plist :foo) 1))
+    (should-not (plist-get plist :bar))
+    (should (equal plist '(:foo 1))))
+
+  (let ((plist '(:foo 1 :bar 2 :baz 3)))
+    (mic--plist-delete plist :bar :foo)
+    (should-not (plist-get plist :foo))
+    (should-not (plist-get plist :bar))
+    (should (eq (plist-get plist :baz) 3))
+    (should (equal plist '(:baz 3)))))
+
 
 
 (mic-ert-macroexpand-1 mic-deffilter-const-macroexpand-1

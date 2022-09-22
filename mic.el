@@ -153,6 +153,22 @@ Change value in PLIST of PROP to VAL."
        (plist-put ,plist ,prop (append (plist-get ,plist ,prop) ,val))
      (setq ,plist (list ,prop (append (plist-get ,plist ,prop) ,val)))))
 
+(defmacro mic--plist-delete (plist &rest props)
+  "Delete PROPS and their values from PLIST."
+  (let ((original-plist (cl-gensym "plist"))
+        (result (cl-gensym "result"))
+        (key (cl-gensym "key"))
+        (value (cl-gensym "value")))
+    `(let ((,original-plist ,plist)
+           ,result)
+       (while ,original-plist
+         (let ((,key (pop ,original-plist))
+               (,value (pop ,original-plist)))
+           (unless (memq ,key ',props)
+             (push ,key ,result)
+             (push ,value ,result))))
+       (setq ,plist (nreverse ,result)))))
+
 
 
 (defmacro mic-deffilter-const (name &optional docstring &rest plist)
