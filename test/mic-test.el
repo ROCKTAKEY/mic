@@ -265,5 +265,106 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
        (unless (package-installed-p 'package-2)
          (package-install 'package-2)))))
 
+
+
+(ert-deftest mic--plist-put ()
+  (let ((plist '(:foo 1 :bar 2)))
+    (mic--plist-put plist :baz 3)
+    (should (eq (plist-get plist :foo) 1))
+    (should (eq (plist-get plist :bar) 2))
+    (should (eq (plist-get plist :baz) 3)))
+
+  (let (plist)
+    (mic--plist-put plist :baz 3)
+    (should (eq (plist-get plist :baz) 3))))
+
+(ert-deftest mic--plist-put-append ()
+  (let ((plist '(:foo 1 :bar 2)))
+    (mic--plist-put-append plist :baz '(3))
+    (should (eq (plist-get plist :foo) 1))
+    (should (eq (plist-get plist :bar) 2))
+    (should (equal (plist-get plist :baz) '(3))))
+
+  (let ((plist '(:foo (1) :bar (2))))
+    (mic--plist-put-append plist :bar '(3))
+    (should (equal (plist-get plist :foo) '(1)))
+    (should (equal (plist-get plist :bar) '(2 3))))
+
+  (let (plist)
+    (mic--plist-put-append plist :baz '(3))
+    (should (equal (plist-get plist :baz) '(3)))))
+
+
+
+(mic-ert-macroexpand-1 mic-deffilter-const-macroexpand-1
+  ((mic-deffilter-const func-name
+     :foo t
+     :bar '(2 4))
+   . (defun func-name (plist)
+       "Filter for `mic'.
+It return PLIST but each value on some property below is replaced:
+(:foo t :bar
+      '(2 4))
+"
+       (mic--plist-put plist :foo t)
+       (mic--plist-put plist :bar '(2 4))
+       plist))
+  ((mic-deffilter-const func-name
+     "docstring"
+     :foo t
+     :bar '(2 4))
+   . (defun func-name (plist)
+       "docstring"
+       (mic--plist-put plist :foo t)
+       (mic--plist-put plist :bar '(2 4))
+       plist)))
+
+(ert-deftest mic-deffilter-const ()
+  (mic-deffilter-const mic-test-mic-deffilter-const
+    :foo t
+    :bar '(2 4))
+
+  (let* ((init '(:foo 1 :bar 2))
+         (result (mic-test-mic-deffilter-const init)))
+    (should (equal (plist-get result :foo) t))
+    (should (equal (plist-get result :bar) '(2 4)))))
+
+(mic-ert-macroexpand-1 mic-deffilter-const-append-macroexpand-1
+  ((mic-deffilter-const-append func-name
+     :foo '(t)
+     :bar '(2 4))
+   . (defun func-name (plist)
+       "Filter for `mic'.
+It return PLIST but each value on some property below is appended:
+(:foo
+ '(t)
+ :bar
+ '(2 4))
+"
+       (mic--plist-put-append plist :foo
+                              '(t))
+       (mic--plist-put-append plist :bar
+                              '(2 4))
+       plist))
+  ((mic-deffilter-const-append func-name
+     "docstring"
+     :foo '(t)
+     :bar '(2 4))
+   . (defun func-name (plist)
+       "docstring"
+       (mic--plist-put-append plist :foo '(t))
+       (mic--plist-put-append plist :bar '(2 4))
+       plist)))
+
+(ert-deftest mic-deffilter-const-append ()
+  (mic-deffilter-const-append mic-test-mic-deffilter-const-append
+    :foo '(t)
+    :bar '(3 4))
+
+  (let* ((init '(:foo (1) :bar (2)))
+         (result (mic-test-mic-deffilter-const-append init)))
+    (should (equal (plist-get result :foo) '(1 t)))
+    (should (equal (plist-get result :bar) '(2 3 4)))))
+
 (provide 'mic-test)
 ;;; mic-test.el ends here

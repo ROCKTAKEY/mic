@@ -138,6 +138,65 @@ Each element is package symbol."
         (package-install ',arg)))
    list))
 
+
+
+(defmacro mic--plist-put (plist prop val)
+  "Same as `plist-put', but fine when PLIST is nil.
+Change value in PLIST of PROP to VAL."
+  `(if ,plist
+       (plist-put ,plist ,prop ,val)
+     (setq ,plist (list ,prop ,val))))
+
+(defmacro mic--plist-put-append (plist prop val)
+  "Append VAL to value in PLIST of PROP."
+  `(if ,plist
+       (plist-put ,plist ,prop (append (plist-get ,plist ,prop) ,val))
+     (setq ,plist (list ,prop (append (plist-get ,plist ,prop) ,val)))))
+
+
+
+(defmacro mic-deffilter-const (name &optional docstring &rest plist)
+  "Define filter macro named NAME with document DOCSTRING.
+The filter recieves plist and returns plist.
+It replace value on each property in PLIST with each value in PLIST."
+  (declare (indent defun))
+  (unless (stringp docstring)
+    (push docstring plist)
+    (setq docstring nil))
+  `(defun ,name (plist)
+     ,(or docstring
+          (format "Filter for `mic'.
+It return PLIST but each value on some property below is replaced:
+%s" (pp-to-string plist)))
+     ,@(let (result)
+         (while plist
+           (let ((key (pop plist))
+                 (value (pop plist)))
+             (push `(mic--plist-put plist ,key ,value) result)))
+         (nreverse result))
+     plist))
+
+(defmacro mic-deffilter-const-append (name &optional docstring &rest plist)
+  "Define filter macro named NAME with document DOCSTRING.
+The filter recieves plist and returns plist.
+It append each value in PLIST on each property to recieved plist."
+  (declare (indent defun))
+  (unless (stringp docstring)
+    (push docstring plist)
+    (setq docstring nil))
+  `(defun ,name (plist)
+     ,(or docstring
+          (format "Filter for `mic'.
+It return PLIST but each value on some property below is appended:
+%s" (pp-to-string plist)))
+     ,@(let (result)
+         (while plist
+           (let ((key (pop plist))
+                 (value (pop plist)))
+             (push `(mic--plist-put-append plist ,key ,value) result)))
+         (nreverse result))
+     plist))
+
 (cl-defmacro mic (name &key
                        autoload-intaractive
                        autoload-nonintaractive
