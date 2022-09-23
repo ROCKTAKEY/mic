@@ -40,106 +40,6 @@
   "Append and set VAL to VAR."
   `(setq ,var (append ,var ,val)))
 
-(defsubst mic-make-sexp-autoload-interactive (name list)
-  "Create `autoload' sexp from LIST and NAME.
-Each element of LIST is interactive function which should be autoloaded,
-and NAME is feature."
-  (mapcar
-   (lambda (arg)
-     `(autoload #',arg ,(symbol-name name) nil t))
-   list))
-
-(defsubst mic-make-sexp-autoload-noninteractive (name list)
-  "Create `autoload' sexp from LIST and NAME.
-Each element of LIST is non-interactive function which should be autoloaded,
-and NAME is feature."
-  (mapcar
-   (lambda (arg)
-     `(autoload #',arg ,(symbol-name name)))
-   list))
-
-(defsubst mic-make-sexp-custom (alist)
-  "Create `customize-set-variable' sexp from ALIST.
-`car' of each element is SYMBOL, and `cdr' is VALUE."
-  (mapcar
-   (lambda (arg)
-     `(customize-set-variable
-       ',(car arg)
-       ,(cdr arg)))
-   alist))
-
-(defsubst mic-make-sexp-declare-function (name list)
-  "Create `declare-function' sexp from LIST and NAME.
-Each element of LIST is function which should be declared."
-  (mapcar
-   (lambda (arg)
-     `(declare-function ,arg ,(concat "ext:" (symbol-name name))))
-   list))
-
-(defsubst mic-make-sexp-define-key (alist)
-  "Create `define-key' sexp from ALIST.
-`car' of each element is keymap, and `cdr' is list whose element is
-\(KEY-STRING . COMMAND)."
-  (cl-mapcan
-   (lambda (keymap-binds-alist)
-     (let ((keymap (car keymap-binds-alist))
-           (binds (cdr keymap-binds-alist)))
-       (mapcar
-        (lambda (bind)
-          (let ((key (car bind))
-                (command (cdr bind)))
-            `(define-key ,keymap (kbd ,key) ,command)))
-        binds)))
-   alist))
-
-(defsubst mic-make-sexp-define-key-with-feature (alist)
-  "Create `define-key' sexp from ALIST with `with-eval-after-load'.
-`car' of each element of ALIST is FEATURE.
-`cdr' of each element of ALIST is same as ALIST of `mic-make-sexp-define-key'."
-  (mapcar
-   (lambda (cons)
-     (append (list #'with-eval-after-load `',(car cons))
-             (mic-make-sexp-define-key (cdr cons))))
-   alist))
-
-(defsubst mic-make-sexp-defvar-noninitial (list)
-  "Create `defvar' sexp from LIST and NAME.
-Each element of LIST is variable which should be declared."
-  (mapcar
-   (lambda (arg)
-     `(defvar ,arg))
-   list))
-
-(defsubst mic-make-sexp-face (alist)
-  "Create `custom-set-faces' sexp from ALIST.
-`car' of each element is FACE, and `cdr' is VALUE."
-  (and alist
-       `((custom-set-faces
-          ,@(mapcan
-             (lambda (arg)
-               `('(,(car arg)
-                   ,(cdr arg))))
-             alist)))))
-
-(defsubst mic-make-sexp-hook (alist)
-  "Create `add-hook' sexp from ALIST.
-`car' of each element is HOOK, and `cdr' is FUNCTION."
-  (mapcar
-   (lambda (arg)
-     `(add-hook ',(car arg) ,(cdr arg)))
-   alist))
-
-(defsubst mic-make-sexp-package (list)
-  "Create `package-install' sexp from LIST.
-Each element is package symbol."
-  (mapcar
-   (lambda (arg)
-     `(unless (package-installed-p ',arg)
-        (package-install ',arg)))
-   list))
-
-
-
 (defmacro mic--plist-put (plist prop val)
   "Same as `plist-put', but fine when PLIST is nil.
 Change value in PLIST of PROP to VAL."
@@ -260,6 +160,131 @@ Argument NAME, PLIST. Used filters are:
            ,',name
            ,',@plist)))))
 
+
+
+(defsubst mic-make-sexp-autoload-interactive (name list)
+  "Create `autoload' sexp from LIST and NAME.
+Each element of LIST is interactive function which should be autoloaded,
+and NAME is feature."
+  (mapcar
+   (lambda (arg)
+     `(autoload #',arg ,(symbol-name name) nil t))
+   list))
+
+(defsubst mic-make-sexp-autoload-noninteractive (name list)
+  "Create `autoload' sexp from LIST and NAME.
+Each element of LIST is non-interactive function which should be autoloaded,
+and NAME is feature."
+  (mapcar
+   (lambda (arg)
+     `(autoload #',arg ,(symbol-name name)))
+   list))
+
+(defsubst mic-make-sexp-custom (alist)
+  "Create `customize-set-variable' sexp from ALIST.
+`car' of each element is SYMBOL, and `cdr' is VALUE."
+  (mapcar
+   (lambda (arg)
+     `(customize-set-variable
+       ',(car arg)
+       ,(cdr arg)))
+   alist))
+
+(defsubst mic-make-sexp-declare-function (name list)
+  "Create `declare-function' sexp from LIST and NAME.
+Each element of LIST is function which should be declared."
+  (mapcar
+   (lambda (arg)
+     `(declare-function ,arg ,(concat "ext:" (symbol-name name))))
+   list))
+
+(defsubst mic-make-sexp-define-key (alist)
+  "Create `define-key' sexp from ALIST.
+`car' of each element is keymap, and `cdr' is list whose element is
+\(KEY-STRING . COMMAND)."
+  (cl-mapcan
+   (lambda (keymap-binds-alist)
+     (let ((keymap (car keymap-binds-alist))
+           (binds (cdr keymap-binds-alist)))
+       (mapcar
+        (lambda (bind)
+          (let ((key (car bind))
+                (command (cdr bind)))
+            `(define-key ,keymap (kbd ,key) ,command)))
+        binds)))
+   alist))
+
+(defsubst mic-make-sexp-define-key-with-feature (alist)
+  "Create `define-key' sexp from ALIST with `with-eval-after-load'.
+`car' of each element of ALIST is FEATURE.
+`cdr' of each element of ALIST is same as ALIST of `mic-make-sexp-define-key'."
+  (mapcar
+   (lambda (cons)
+     (append (list #'with-eval-after-load `',(car cons))
+             (mic-make-sexp-define-key (cdr cons))))
+   alist))
+
+(defsubst mic-make-sexp-defvar-noninitial (list)
+  "Create `defvar' sexp from LIST and NAME.
+Each element of LIST is variable which should be declared."
+  (mapcar
+   (lambda (arg)
+     `(defvar ,arg))
+   list))
+
+(defsubst mic-make-sexp-face (alist)
+  "Create `custom-set-faces' sexp from ALIST.
+`car' of each element is FACE, and `cdr' is VALUE."
+  (and alist
+       `((custom-set-faces
+          ,@(mapcan
+             (lambda (arg)
+               `('(,(car arg)
+                   ,(cdr arg))))
+             alist)))))
+
+(defsubst mic-make-sexp-hook (alist)
+  "Create `add-hook' sexp from ALIST.
+`car' of each element is HOOK, and `cdr' is FUNCTION."
+  (mapcar
+   (lambda (arg)
+     `(add-hook ',(car arg) ,(cdr arg)))
+   alist))
+
+(defsubst mic-make-sexp-package (list)
+  "Create `package-install' sexp from LIST.
+Each element is package symbol."
+  (mapcar
+   (lambda (arg)
+     `(unless (package-installed-p ',arg)
+        (package-install ',arg)))
+   list))
+
+
+
+(cl-defmacro mic-core (name &key
+                            eval
+                            eval-after-load
+                            eval-after-others
+                            eval-after-others-after-load
+                            eval-before-all)
+  "Configuration package named NAME.
+It evaluates each element of EVAL-BEFORE-ALL, EVAL, EVAL-AFTER-OTHERS in order.
+In addition, It will evaluate each element of EVAL-AFTER-LOAD and
+ EVAL-AFTER-OTHERS-AFTER-LOAD after load of package NAME."
+  (declare (indent defun))
+  `(prog1 ',name
+     ,@(and (or eval-after-load
+                eval-after-others-after-load)
+            (list
+             (append
+              (list 'with-eval-after-load `',name)
+              eval-after-load
+              eval-after-others-after-load)))
+     ,@eval-before-all
+     ,@eval
+     ,@eval-after-others))
+
 (cl-defmacro mic (name &key
                        autoload-intaractive
                        autoload-nonintaractive
@@ -278,7 +303,7 @@ Argument NAME, PLIST. Used filters are:
                        face
                        hook
                        package)
-  "Manage configuration of paackage named NAME.
+  "Manage configuration of package named NAME.
 
 Optional argument AUTOLOAD-INTARACTIVE, AUTOLOAD-NONINTARACTIVE, CUSTOM,
 CUSTOM-AFTER-LOAD, DECLARE-FUNCTION, DEFINE-KEY, DEFINE-KEY-AFTER-LOAD,
