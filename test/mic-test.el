@@ -35,7 +35,8 @@
 
 (defmacro mic-ert-macroexpand-1 (name &rest args)
   "Define test named NAME.
-The test compare macro expandation of `car' of each element of ARGS with `cdr' of it."
+The test compare macro expandation of `car' of each element of ARGS with `cdr' of it.
+The test defined by this expands macro once."
   (declare (indent defun))
   `(ert-deftest ,name ()
      ,@(mapcar
@@ -44,25 +45,37 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
                           ',(cdr arg))))
         args)))
 
-(mic-ert-macroexpand-1 mic-autoload-interactive
+(defmacro mic-ert-macroexpand-2 (name &rest args)
+  "Define test named NAME.
+The test compare macro expandation of `car' of each element of ARGS with `cdr' of it.
+The test defined by this expands macro twice."
+  (declare (indent defun))
+  `(ert-deftest ,name ()
+     ,@(mapcar
+        (lambda (arg)
+          `(should (equal (macroexpand-1 (macroexpand-1 ',(car arg)))
+                          ',(cdr arg))))
+        args)))
+
+(mic-ert-macroexpand-2 mic-autoload-interactive
   ((mic package-name
-     :autoload-intaractive
+     :autoload-interactive
      (find-file
       write-file))
    . (prog1 'package-name
        (autoload #'find-file "package-name" nil t)
        (autoload #'write-file "package-name" nil t))))
 
-(mic-ert-macroexpand-1 mic-autoload-noninteractive
+(mic-ert-macroexpand-2 mic-autoload-noninteractive
   ((mic package-name
-     :autoload-nonintaractive
+     :autoload-noninteractive
      (cl-map
       cl-mapcar))
    . (prog1 'package-name
        (autoload #'cl-map "package-name")
        (autoload #'cl-mapcar "package-name"))))
 
-(mic-ert-macroexpand-1 mic-custom
+(mic-ert-macroexpand-2 mic-custom
   ((mic package-name
      :custom
      ((a . 1)
@@ -72,7 +85,7 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
        (customize-set-variable 'b
                                (+ 1 2)))))
 
-(mic-ert-macroexpand-1 mic-custom-after-load
+(mic-ert-macroexpand-2 mic-custom-after-load
   ((mic package-name
      :custom-after-load
      ((a . 1)
@@ -83,7 +96,7 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
          (customize-set-variable 'b
                                  (+ 1 2))))))
 
-(mic-ert-macroexpand-1 mic-declare-function
+(mic-ert-macroexpand-2 mic-declare-function
   ((mic package-name
      :declare-function
      (find-file
@@ -92,7 +105,7 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
        (declare-function find-file "ext:package-name")
        (declare-function write-file "ext:package-name"))))
 
-(mic-ert-macroexpand-1 mic-define-key
+(mic-ert-macroexpand-2 mic-define-key
   ((mic package-name
      :define-key
      ((global-map
@@ -107,7 +120,7 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
        (define-key prog-mode-map (kbd "M-a") #'beginning-of-buffer)
        (define-key prog-mode-map (kbd "M-e") #'end-of-buffer))))
 
-(mic-ert-macroexpand-1 mic-define-key-after-load
+(mic-ert-macroexpand-2 mic-define-key-after-load
   ((mic package-name
      :define-key-after-load
      ((c-mode-map
@@ -123,7 +136,7 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
          (define-key c++-mode-map (kbd "M-a") #'beginning-of-buffer)
          (define-key c++-mode-map (kbd "M-e") #'end-of-buffer)))))
 
-(mic-ert-macroexpand-1 mic-define-key-with-feature
+(mic-ert-macroexpand-2 mic-define-key-with-feature
   ((mic package-name
      :define-key-with-feature
      ((cc-mode
@@ -145,7 +158,7 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
        (with-eval-after-load 'python
          (define-key python-mode-map (kbd "C-t") #'python-check)))))
 
-(mic-ert-macroexpand-1 mic-defvar-noninitial
+(mic-ert-macroexpand-2 mic-defvar-noninitial
   ((mic package-name
      :defvar-noninitial
      (skk-jisyo
@@ -154,7 +167,7 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
        (defvar skk-jisyo)
        (defvar skk-use-azik))))
 
-(mic-ert-macroexpand-1 mic-eval
+(mic-ert-macroexpand-2 mic-eval
   ((mic package-name
      :eval
      ((message "Hello")
@@ -163,7 +176,7 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
        (message "Hello")
        (message "World"))))
 
-(mic-ert-macroexpand-1 mic-eval-after-load
+(mic-ert-macroexpand-2 mic-eval-after-load
   ((mic package-name
      :eval-after-load
      ((message "Hello")
@@ -173,7 +186,7 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
          (message "Hello")
          (message "World")))))
 
-(mic-ert-macroexpand-1 mic-eval-after-others
+(mic-ert-macroexpand-2 mic-eval-after-others
   ((mic package-name
      :custom
      ((skk-jisyo . "~/skk-jisyo"))
@@ -192,7 +205,7 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
        (message "after")
        (message "custom"))))
 
-(mic-ert-macroexpand-1 mic-eval-after-others-after-load
+(mic-ert-macroexpand-2 mic-eval-after-others-after-load
   ((mic package-name
      :custom-after-load
      ((skk-jisyo . "~/skk-jisyo"))
@@ -212,7 +225,7 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
          (message "after")
          (message "custom")))))
 
-(mic-ert-macroexpand-1 mic-eval-before-all
+(mic-ert-macroexpand-2 mic-eval-before-all
   ((mic package-name
      :custom
      ((skk-jisyo . "~/skk-jisyo"))
@@ -231,7 +244,7 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
         'skk-jisyo
         "~/skk-jisyo"))))
 
-(mic-ert-macroexpand-1 mic-face
+(mic-ert-macroexpand-2 mic-face
   ((mic package-name
      :face
      ((aw-leading-char-face
@@ -245,7 +258,7 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
         '(aw-mode-line-face
           ((t (:background "#006000" :foreground "white" :bold t))))))))
 
-(mic-ert-macroexpand-1 mic-hook
+(mic-ert-macroexpand-2 mic-hook
   ((mic package-name
      :hook
      ((after-init-hook . #'ignore)
@@ -254,7 +267,7 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
        (add-hook 'after-init-hook #'ignore)
        (add-hook 'prog-mode-hook (lambda ())))))
 
-(mic-ert-macroexpand-1 mic-package
+(mic-ert-macroexpand-2 mic-package
   ((mic package-name
      :package
      (package-1
@@ -264,6 +277,185 @@ The test compare macro expandation of `car' of each element of ARGS with `cdr' o
          (package-install 'package-1))
        (unless (package-installed-p 'package-2)
          (package-install 'package-2)))))
+
+
+
+(ert-deftest mic--plist-put ()
+  (let ((plist '(:foo 1 :bar 2)))
+    (mic--plist-put plist :baz 3)
+    (should (eq (plist-get plist :foo) 1))
+    (should (eq (plist-get plist :bar) 2))
+    (should (eq (plist-get plist :baz) 3)))
+
+  (let (plist)
+    (mic--plist-put plist :baz 3)
+    (should (eq (plist-get plist :baz) 3))))
+
+(ert-deftest mic--plist-put-append ()
+  (let ((plist '(:foo 1 :bar 2)))
+    (mic--plist-put-append plist :baz '(3))
+    (should (eq (plist-get plist :foo) 1))
+    (should (eq (plist-get plist :bar) 2))
+    (should (equal (plist-get plist :baz) '(3))))
+
+  (let ((plist '(:foo (1) :bar (2))))
+    (mic--plist-put-append plist :bar '(3))
+    (should (equal (plist-get plist :foo) '(1)))
+    (should (equal (plist-get plist :bar) '(2 3))))
+
+  (let (plist)
+    (mic--plist-put-append plist :baz '(3))
+    (should (equal (plist-get plist :baz) '(3)))))
+
+(ert-deftest mic--plist-delete ()
+  (let ((plist '(:foo 1 :bar 2)))
+    (mic--plist-delete plist :foo)
+    (should-not (plist-get plist :foo))
+    (should (eq (plist-get plist :bar) 2))
+    (should (equal plist '(:bar 2))))
+
+  (let ((plist '(:foo 1 :bar 2)))
+    (mic--plist-delete plist :bar)
+    (should (eq (plist-get plist :foo) 1))
+    (should-not (plist-get plist :bar))
+    (should (equal plist '(:foo 1))))
+
+  (let ((plist '(:foo 1 :bar 2 :baz 3)))
+    (mic--plist-delete plist :bar :foo)
+    (should-not (plist-get plist :foo))
+    (should-not (plist-get plist :bar))
+    (should (eq (plist-get plist :baz) 3))
+    (should (equal plist '(:baz 3)))))
+
+
+
+(mic-ert-macroexpand-1 mic-deffilter-const-macroexpand-1
+  ((mic-deffilter-const func-name
+     :foo t
+     :bar '(2 4))
+   . (defun func-name (plist)
+       "Filter for `mic'.
+It return PLIST but each value on some property below is replaced:
+(:foo t :bar
+      '(2 4))
+"
+       (mic--plist-put plist :foo t)
+       (mic--plist-put plist :bar '(2 4))
+       plist))
+  ((mic-deffilter-const func-name
+     "docstring"
+     :foo t
+     :bar '(2 4))
+   . (defun func-name (plist)
+       "docstring"
+       (mic--plist-put plist :foo t)
+       (mic--plist-put plist :bar '(2 4))
+       plist)))
+
+(ert-deftest mic-deffilter-const ()
+  (mic-deffilter-const mic-test-mic-deffilter-const
+    :foo t
+    :bar '(2 4))
+
+  (let* ((init '(:foo 1 :bar 2))
+         (result (mic-test-mic-deffilter-const init)))
+    (should (equal (plist-get result :foo) t))
+    (should (equal (plist-get result :bar) '(2 4)))))
+
+(mic-ert-macroexpand-1 mic-deffilter-const-append-macroexpand-1
+  ((mic-deffilter-const-append func-name
+     :foo '(t)
+     :bar '(2 4))
+   . (defun func-name (plist)
+       "Filter for `mic'.
+It return PLIST but each value on some property below is appended:
+(:foo
+ '(t)
+ :bar
+ '(2 4))
+"
+       (mic--plist-put-append plist :foo
+                              '(t))
+       (mic--plist-put-append plist :bar
+                              '(2 4))
+       plist))
+  ((mic-deffilter-const-append func-name
+     "docstring"
+     :foo '(t)
+     :bar '(2 4))
+   . (defun func-name (plist)
+       "docstring"
+       (mic--plist-put-append plist :foo '(t))
+       (mic--plist-put-append plist :bar '(2 4))
+       plist)))
+
+(ert-deftest mic-deffilter-const-append ()
+  (mic-deffilter-const-append mic-test-mic-deffilter-const-append
+    :foo '(t)
+    :bar '(3 4))
+
+  (let* ((init '(:foo (1) :bar (2)))
+         (result (mic-test-mic-deffilter-const-append init)))
+    (should (equal (plist-get result :foo) '(1 t)))
+    (should (equal (plist-get result :bar) '(2 3 4)))))
+
+(mic-ert-macroexpand-1 mic-apply-filter
+  ((mic-apply-filter plist name-var
+     filter1
+     filter2
+     filter3)
+   . (progn
+       (mic--plist-put plist :name name-var)
+       (setq plist
+             (thread-last plist filter1 filter2 filter3))
+       (mic--plist-delete plist :name))))
+
+(mic-ert-macroexpand-1 mic-defmic-macroexpand-1
+  ((mic-defmic macro-name parent-name
+     "docstring"
+     :filters '(filter1 filter2))
+   . (defmacro macro-name (name &rest plist)
+       "docstring"
+       (declare (indent defun))
+       (mic-apply-filter plist name
+         filter1 filter2)
+       (backquote
+        (parent-name ,name ,@plist))))
+  ((mic-defmic macro-name parent-name
+     :filters '(filter1 filter2))
+   . (defmacro macro-name (name &rest plist)
+       "`mic' alternative defined by `mic-defmic'.
+Argument NAME, PLIST. Used filters are:
+- `filter1'
+- `filter2'"
+       (declare (indent defun))
+       (mic-apply-filter plist name
+         filter1 filter2)
+       (backquote
+        (parent-name ,name ,@plist)))))
+
+(mic-deffilter-const-append mic-test-filter-const-1
+    :foo '(1)
+    :bar '(2 3))
+
+(mic-deffilter-const-append mic-test-filter-const-2
+  :foo '(4 5)
+  :baz '(6 7))
+
+(mic-defmic mic-test-mic-defmic-filters parent-name
+  :filters '(mic-test-filter-const-1 mic-test-filter-const-2))
+
+(mic-ert-macroexpand-1 mic-defmic-filters
+  ((mic-test-mic-defmic-filters package-name
+     :foo (123)
+     :bar (456))
+   . (parent-name package-name
+                  :foo
+                  (123 1 4 5)
+                  :bar
+                  (456 2 3)
+                  :baz
+                  (6 7))))
 
 (provide 'mic-test)
 ;;; mic-test.el ends here
