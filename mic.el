@@ -158,9 +158,10 @@ Argument NAME, PLIST. Used filters are:
        (mic-apply-filter plist name
          ,@filters)
        (backquote
-        ,`(,parent
-           ,',name
-           ,',@plist)))))
+        ,(list
+          parent
+          ',name
+          ',@plist)))))
 
 
 
