@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.12.1
+;; Version: 0.12.2
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -386,6 +386,7 @@ In addition, It will evaluate each element of EVAL-AFTER-LOAD and
  EVAL-AFTER-OTHERS-AFTER-LOAD after load of package NAME."
   (declare (indent defun))
   `(prog1 ',name
+     ,@eval-before-all
      ,@(and (or eval-after-load
                 eval-after-others-after-load)
             (list
@@ -393,7 +394,6 @@ In addition, It will evaluate each element of EVAL-AFTER-LOAD and
               (list 'with-eval-after-load `',name)
               eval-after-load
               eval-after-others-after-load)))
-     ,@eval-before-all
      ,@eval
      ,@eval-after-others))
 
