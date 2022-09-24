@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.12.0
+;; Version: 0.12.1
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -36,10 +36,6 @@
   :group 'convenience
   :prefix "mic-"
   :link '(url-link "https://github.com/ROCKTAKEY/mic"))
-
-(defmacro mic-setappend (var val)
-  "Append and set VAL to VAR."
-  `(setq ,var (append ,var ,val)))
 
 (defmacro mic--plist-put (plist prop val)
   "Same as `plist-put', but fine when PLIST is nil.
