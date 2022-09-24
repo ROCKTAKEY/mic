@@ -142,7 +142,7 @@ PLIST is filtered by each FILTERS in order and passed to PARENT.
   (unless (stringp docstring)
     (push docstring plist)
     (setq docstring nil))
-  (let ((filters (plist-get plist :filters)))
+  (let ((filters (eval (plist-get plist :filters))))
     `(defmacro ,name (name &rest plist)
        ,(or docstring
             (format "`mic' alternative defined by `mic-defmic'.
@@ -401,18 +401,18 @@ In addition, It will evaluate each element of EVAL-AFTER-LOAD and
 
 (mic-defmic mic mic-core
   :filters
-  (mic-filter-autoload-interactive
-   mic-filter-autoload-noninteractive
-   mic-filter-custom
-   mic-filter-custom-after-load
-   mic-filter-declare-function
-   mic-filter-define-key
-   mic-filter-define-key-after-load
-   mic-filter-define-key-with-feature
-   mic-filter-defvar-noninitial
-   mic-filter-face
-   mic-filter-hook
-   mic-filter-package))
+  '(mic-filter-autoload-interactive
+    mic-filter-autoload-noninteractive
+    mic-filter-custom
+    mic-filter-custom-after-load
+    mic-filter-declare-function
+    mic-filter-define-key
+    mic-filter-define-key-after-load
+    mic-filter-define-key-with-feature
+    mic-filter-defvar-noninitial
+    mic-filter-face
+    mic-filter-hook
+    mic-filter-package))
 
 (provide 'mic)
 ;;; mic.el ends here

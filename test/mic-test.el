@@ -413,7 +413,7 @@ It return PLIST but each value on some property below is appended:
 (mic-ert-macroexpand-1 mic-defmic-macroexpand-1
   ((mic-defmic macro-name parent-name
      "docstring"
-     :filters (filter1 filter2))
+     :filters '(filter1 filter2))
    . (defmacro macro-name (name &rest plist)
        "docstring"
        (declare (indent defun))
@@ -422,7 +422,7 @@ It return PLIST but each value on some property below is appended:
        (backquote
         (parent-name ,name ,@plist))))
   ((mic-defmic macro-name parent-name
-     :filters (filter1 filter2))
+     :filters '(filter1 filter2))
    . (defmacro macro-name (name &rest plist)
        "`mic' alternative defined by `mic-defmic'.
 Argument NAME, PLIST. Used filters are:
@@ -443,7 +443,7 @@ Argument NAME, PLIST. Used filters are:
   :baz '(6 7))
 
 (mic-defmic mic-test-mic-defmic-filters parent-name
-  :filters (mic-test-filter-const-1 mic-test-filter-const-2))
+  :filters '(mic-test-filter-const-1 mic-test-filter-const-2))
 
 (mic-ert-macroexpand-1 mic-defmic-filters
   ((mic-test-mic-defmic-filters package-name
