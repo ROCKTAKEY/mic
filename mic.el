@@ -138,7 +138,8 @@ The defined macro recieves two arguments, NAME and PLIST.
 PLIST is filtered by each FILTERS in order and passed to PARENT.
 
 \(fn NAME PARENT [DOCSTRING] &key FILTERS)"
-  (declare (indent defun))
+  (declare (indent defun)
+           (doc-string 2))
   (unless (stringp docstring)
     (push docstring plist)
     (setq docstring nil))
