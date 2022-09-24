@@ -2,8 +2,21 @@
 [[file:LICENSE][https://img.shields.io/github/license/ROCKTAKEY/mic.svg?style=flat-square]]
 [[https://codecov.io/gh/ROCKTAKEY/mic?branch=master][https://img.shields.io/codecov/c/github/ROCKTAKEY/mic.svg?style=flat-square]]
 [[https://github.com/ROCKTAKEY/mic/actions][https://img.shields.io/github/workflow/status/ROCKTAKEY/mic/test/master.svg?style=flat-square]]
-* mic: Minimal configuration manager
+* mic: Minimal configuration manager for Emacs
+#+BEGIN_QUOTE
+=mic= is uncustomizable. Define your own =mic=.
+#+END_QUOTE
+
+=mic= is minimal configuration manager for Emacs.
+This package is yet another =use-package= and =leaf=, but is also used with them (See [[Alternative]]).
+=mic= is minimal, so if you would like to write complex configuration,
+=mic= is a little redundant. However, there is no problem. =mic= is thought to be
+used to core to define your own, another, more convenient =mic=.
+There are some functions to define your own =mic=.
 
 * How to Use?
+* Use =mic-core=, minimum one
+* Use default =mic=
+* Alternative
 * License
   This package is licensed by GPLv3. See [[file:LICENSE][LICENSE]].
