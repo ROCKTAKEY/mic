@@ -26,7 +26,7 @@ For Emacs Lisp beginners, original =mic= macro is useful to configure your =init
       ("M-l" . #'lsp)))
 
     ;; These are same as `:define-key' argument,
-    ;; but evaluated after loading the package (`lsp-mode' for this example).
+    ;; but evaluated after loading the feature (`lsp-mode' for this example).
     ;; This is needed because `lsp-mode-map' is unavailable before `lsp'
     ;; loading.
     :define-key-after-load
@@ -126,7 +126,7 @@ For Emacs Lisp expert, original =mic= is a little unsatisfactory or redundant.
    =mic-core= recieves only keywords start from =:eval=, such as =:eval=, =eval-after-load=.
 2. Define filter functions. Each one recieves plist (property list) and returns plist.
    returned plist is passed to parent (such as =mic=, =mic-core=) or next filter.
-   Note that filter function can get package name as value of property =:name=.
+   Note that filter function can get feature name as value of property =:name=.
    Of course, you can use pre-defined filters. =mic= is defined by some filters
    from the parent =mic-core=.
 3. Define your own mic by =mic-defmic=. It recieves =NAME=, optional =DOCSTRING=,
@@ -349,9 +349,9 @@ These are transformed to =customize-set-variable= sexps.
 Each element is =(VARIABLE . VALUE)=.
 Each =VARIABLE= is set to =VALUE=.
 Sexp from =:custom= argument are evaluated when the =mic= sexp is evaluated,
-while sexp from =:custom-after-load= argument are evaluated after the package is loaded.
+while sexp from =:custom-after-load= argument are evaluated after the feature is loaded.
 =:custom-after-load= is used when you want to use initial value of customized variable
-or function defined in the package.
+or function defined in the feature.
 
 #+begin_src emacs-lisp :tangle yes
   (mic feature-name
@@ -362,7 +362,7 @@ or function defined in the package.
     :custom-after-load
     ;; You can use the initial value of `variable3'
     ((variable3 . (+ variable3 1))
-     ;; You can use function defined in the package (for this example `feature-name')
+     ;; You can use function defined in the feature (for this example `feature-name')
      (variable2 . (function-defined-in-feature-name))))
 
   ;; Expanded to:
@@ -417,7 +417,7 @@ They exist in order to suppress warning of undefined functions/variables.
   ;; Expanded to:
   (prog1 'feature-name
     ;; They declare that the functions `function1' and `function2' is defined in
-    ;; the package `feature-name'.
+    ;; the feature `feature-name'.
     (declare-function function1 "ext:feature-name")
     (declare-function function2 "ext:feature-name")
     ;; They declare that the variables `variable1' and `variable2' will be defined.
@@ -434,7 +434,7 @@ On =:define-key= or =:define-key-after-load=, each element of the argument is
 
 On =:define-key-with-feature=, each element is =(FEATURE (KEYMAP (KEYS . COMMAND)...))=.
 =FEATURE= is feature, and the =define-key= sexp is evaluated after loading the =FEATURE=.
-This exists in order to define =COMMAND= in the package with =KEYS= to =KEYMAP= defined in =FEATURE=.
+This exists in order to define =COMMAND= in the feature with =KEYS= to =KEYMAP= defined in =FEATURE=.
 Use it to make sure that =KEYMAP= is defined.
 
 #+begin_src emacs-lisp :tangle yes
@@ -456,11 +456,11 @@ Use it to make sure that =KEYMAP= is defined.
       ("M-c" . #'feature-name-command4)))
 
 
-    ;; When `other-package-mode-map' is defined in `other-package', which is not `feature-name',
+    ;; When `other-feature-mode-map' is defined in `other-feature', which is not `feature-name',
     ;; use `:define-key-with-feature'.
     :define-key-with-feature
-    ((other-package
-      (other-package-mode-map
+    ((other-feature
+      (other-feature-mode-map
        ("M-q" . #'feature-name-command5)))))
 
   ;; Expanded to:
@@ -468,8 +468,8 @@ Use it to make sure that =KEYMAP= is defined.
     :eval
     ((define-key global-map (kbd "M-l") #'feature-name-command1)
      (define-key prog-mode-map (kbd "M-a") #'feature-name-comman2)
-     (with-eval-after-load 'other-package
-       (define-key other-package-mode-map (kbd "M-q") #'feature-name-command5)))
+     (with-eval-after-load 'other-feature
+       (define-key other-feature-mode-map (kbd "M-q") #'feature-name-command5)))
     :eval-after-load
     ((define-key feature-name-mode-map (kbd "M-r") #'feature-name-command3)
      (define-key feature-name-mode-map (kbd "M-c") #'feature-name-command4)))
@@ -484,8 +484,8 @@ Use it to make sure that =KEYMAP= is defined.
     (define-key global-map (kbd "M-l") #'feature-name-command1)
     (define-key prog-mode-map (kbd "M-a") #'feature-name-comman2)
     ;; `:define-key-with-feature'
-    (with-eval-after-load 'other-package
-      (define-key other-package-mode-map (kbd "M-q") #'feature-name-command5)))
+    (with-eval-after-load 'other-feature
+      (define-key other-feature-mode-map (kbd "M-q") #'feature-name-command5)))
 #+end_src
 
 ** =:face=
@@ -613,6 +613,100 @@ The expandation result is complicated, because it is annoying to fetch package a
            (warn "Package %s is not found" 'package-name2))))))
 #+end_src
 
+* Define your own =mic=
+You do not like =mic= behavior? It is OK. You can define your own =mic=!
+There are some ways to define it:
+- Use =mic-defmic=
+- Use =defmacro=
+
+** Define your own =mic= with =mic-defmic=
+If you would like to add keywords, or to make some keywords more simple,
+you can define =filter= and apply it to =mic= (or =mic-core=, and another =mic=, any parent is allowed).
+
+*** Define filter
+The filter recieves one argument, =PLIST= (plist, property list), and returns =RETURNED-PLIST=.
+It filters or transforms it into returned plist.
+It is better to divide filters by every keyword, because of reusability.
+
+1. Each filter recieves 1 argument =PLIST=, which is plist (property list).
+2. Each filter returns =RETURNED-PLIST=, which is plist.
+3. =PLIST= is given by user or filter before.
+4. =PLIST= have feature name =:name= property.
+5. =RETURNED-PLIST= is passed to next filter or parent =mic= (=mic=, =mic-core=, or another).
+6. =RETURNED-PLIST= should have same value of =:name= property.
+7. The property only used by your filter should be removed in =RETURNED-PLIST=.
+
+Here is example:
+#+begin_src emacs-lisp :tangle yes
+  (defun my-filter-global-set-key-without-quote (plist)
+    (let ((alist
+           ;; Get value from your own keyword
+           (plist-get plist :bind))
+          sexps)
+      (setq sexps
+            ;; Transform each element
+            (mapcar
+             (lambda (arg)
+               (let ((keys (car arg))
+                     (command (cdr arg)))
+                 `(global-set-key (kbd ,keys) #',command)))
+             alist))
+      ;; Put sexps to `:eval' arguments
+      (mic-plist-put-append plist :eval sexps)
+      ;; Don't forget to delete your own keyword!
+      ;; When forget it, parent recieves it and may cause unexpected result.
+      (mic-plist-delete plist :bind)
+      plist))
+#+end_src
+
+*** Define =mic= with the filter and =mic-defmic=
+=mic-defmic= recieves arguments: =NAME=, =PANRENT=, optional =DOCSTRING=, keyword argument =FILTERS=.
+=NAME= is your new =mic= macro name. =PARENT= is parent =mic=, which recieves =RETURNED-PLIST= at last.
+=FILTERS= is list of your filters. When your =mic= recieves plist, the plist is filtered by all of your =FILTERS= in order,
+then the plist is passed to =PARENT=.
+
+Here is example:
+#+begin_src emacs-lisp :tangle yes
+  ;; Define `mymic'
+  (mic-defmic mymic
+    ;; Parent is here. You can also use `mic-core'.
+    mic
+    :filters
+    '(my-filter-global-set-key-without-quote
+      ;; You can add other filters below
+      ))
+
+  ;; Then you can use `mymic' like:
+  (mymic simple
+    :bind
+    (("C-d" . delete-forward-char)
+     ("C-x l" . toggle-truncate-lines))
+    ;; Of course parent keywords are accepted.
+    :custom
+    ((kill-whole-line . t)
+     (set-mark-command-repeat-pop . t)
+     (mark-ring-max . 50)))
+
+  ;; Expanded to:
+  (mic simple
+    :custom
+    ((kill-whole-line . t)
+     (set-mark-command-repeat-pop . t)
+     (mark-ring-max . 50))
+    :eval
+    ((global-set-key (kbd "C-d") #'delete-forward-char)
+     (global-set-key (kbd "C-x l") #'toggle-truncate-lines)))
+#+end_src
+
+When you would like to use =mic-core= as =PARENT=, =mic-filter-core-validate= is useful to validate plist.
+*Please put it tail of =FILTERS= if you use it.*
+
+** Define your own =mic= with =defmacro=
+When you read here, you should know =defmacro=.
+You can do anything with =defmacro=. =mic-defmic= is easy way to define your =mic=,
+but may be not enough for you, because of restriction. Then *I RECOMMEND to use =defmacro=*.
+I am looking forward to seeing your =mic= defined by =defmacro=!
+
 * Alternative
 :PROPERTIES:
 :CUSTOM_ID: alternative
@@ -627,6 +721,10 @@ It is just your preference.
 
 In addition, they are customizable, while =mic= is not customizable, but re-definable.
 You can define your own =mic= according to your preference, with =mic= help.
+
+* Contribute
+When you think you would like to share your filter or your own =mic=, use GitHub Discussion.
+Of course your =mic= defined by =defmacro=. Any issue is welcome.
 
 * License
   This package is licensed by GPLv3. See [[file:LICENSE][LICENSE]].
