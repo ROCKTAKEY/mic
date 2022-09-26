@@ -298,6 +298,321 @@ Because of same reasons as =:eval-before-all=, *it should NOT be used
 by filters*.
 
 * Use default =mic=
+=mic= is minimal for use. =mic-core= is minimum core, but it is not enough to use as it is.
+In addition to keywords allowed by [[mic-core][=mic-core=]], it allows some keyword arguments:
+- =:autoload-interactive=
+- =:autoload-noninteractive=
+- =:custom=
+- =:custom-after-load=
+- =:declare-function=
+- =:define-key=
+- =:define-key-after-load=
+- =:define-key-with-feature=
+- =:defvar-noninitial=
+- =:face=
+- =:hook=
+- =:package=
+
+** =:autoload-interactive=, =:autoload-noninteractive=
+
+These are transformed to =autoload= sexps. Each element is function to autoload.
+Since =autoload= should be informed whether the function is =interactive= or not,
+both =:autoload-interactive= and =:autoload-noninteractive= exist.
+
+#+begin_src emacs-lisp :tangle yes
+  (mic feature-name
+    :autoload-interactive
+    (interactive-func1
+     interactive-func2)
+    :autoload-noninteractive
+    (noninteractive-func3
+     noninteractive-func4))
+
+  ;; Expanded to:
+  (mic-core feature-name :eval
+    ((autoload #'interactive-func1 "feature-name" nil t)
+     (autoload #'interactive-func2 "feature-name" nil t)
+     (autoload #'noninteractive-func3 "feature-name")
+     (autoload #'noninteractive-func4 "feature-name"))
+    :eval-after-load nil)
+
+  ;; Expanded to:
+  (prog1 'feature-name
+    (autoload #'interactive-func1 "feature-name" nil t)
+    (autoload #'interactive-func2 "feature-name" nil t)
+    (autoload #'noninteractive-func3 "feature-name")
+    (autoload #'noninteractive-func4 "feature-name"))
+#+end_src
+
+** =:custom=, =:custom-after-load=
+These are transformed to =customize-set-variable= sexps.
+Each element is =(VARIABLE . VALUE)=.
+Each =VARIABLE= is set to =VALUE=.
+Sexp from =:custom= argument are evaluated when the =mic= sexp is evaluated,
+while sexp from =:custom-after-load= argument are evaluated after the package is loaded.
+=:custom-after-load= is used when you want to use initial value of customized variable
+or function defined in the package.
+
+#+begin_src emacs-lisp :tangle yes
+  (mic feature-name
+    :custom
+    ((variable1 . 1)
+     ;; VALUE is evaluated
+     (variable2 . (+ 1 1)))
+    :custom-after-load
+    ;; You can use the initial value of `variable3'
+    ((variable3 . (+ variable3 1))
+     ;; You can use function defined in the package (for this example `feature-name')
+     (variable2 . (function-defined-in-feature-name))))
+
+  ;; Expanded to:
+  (mic-core feature-name
+    :eval
+    ((customize-set-variable 'variable1 1)
+     (customize-set-variable 'variable2
+                             (+ 1 1)))
+    :eval-after-load
+    ((customize-set-variable 'variable3
+                             (+ variable3 1))
+     (customize-set-variable 'variable2
+                             (function-defined-in-feature-name))))
+
+  ;; Expanded to:
+  (prog1 'feature-name
+    (with-eval-after-load 'feature-name
+      ;; `variable3' is already defined.
+      (customize-set-variable 'variable3
+                               (+ variable3 1))
+      ;; `function-defined-in-feature-name' is already defined.
+      (customize-set-variable 'variable2
+                              (function-defined-in-feature-name)))
+    (customize-set-variable 'variable1 1)
+    (customize-set-variable 'variable2
+                            (+ 1 1)))
+#+end_src
+
+** =declare-function=, =defvar-noninitial=
+These arguments declare functions and variables.
+Each element of =declare-function= / =defvar-noninitial= is symbol as function/variable.
+They exist in order to suppress warning of undefined functions/variables.
+
+#+begin_src emacs-lisp :tangle yes
+  (mic feature-name
+    :declare-function
+    (function1
+     function2)
+    :defvar-noninitial
+    (variable1
+     variable2))
+
+  ;; Expanded to:
+  (mic-core feature-name
+    :eval
+    ((declare-function function1 "ext:feature-name")
+     (declare-function function2 "ext:feature-name")
+     (defvar variable1)
+     (defvar variable2))
+    :eval-after-load nil)
+
+  ;; Expanded to:
+  (prog1 'feature-name
+    ;; They declare that the functions `function1' and `function2' is defined in
+    ;; the package `feature-name'.
+    (declare-function function1 "ext:feature-name")
+    (declare-function function2 "ext:feature-name")
+    ;; They declare that the variables `variable1' and `variable2' will be defined.
+    ;; `defvar' without initial value declares symbol as variable.
+    (defvar variable1)
+    (defvar variable2))
+#+end_src
+
+** =:define-key=, =:define-key-after-load=, =:define-key-with-feature=
+These arguments is transformed to =define-key= sexps.
+On =:define-key= or =:define-key-after-load=, each element of the argument is
+=(KEYMAP (KEYS . COMMAND)...)=. =KEYMAP= is keymap. =KEYS= is passed to =kbd=.
+=COMMAND= is interactive function.
+
+On =:define-key-with-feature=, each element is =(FEATURE (KEYMAP (KEYS . COMMAND)...))=.
+=FEATURE= is feature, and the =define-key= sexp is evaluated after loading the =FEATURE=.
+This exists in order to define =COMMAND= in the package with =KEYS= to =KEYMAP= defined in =FEATURE=.
+Use it to make sure that =KEYMAP= is defined.
+
+#+begin_src emacs-lisp :tangle yes
+  (mic feature-name
+    :define-key
+    ;; (KEYMAP (KEYS . COMMAND)...)
+    ((global-map
+      ;; #' is needed
+      ("M-l" . #'feature-name-command1))
+     (prog-mode-map
+      ;; #' is needed
+      ("M-a" . #'feature-name-comman2)))
+
+    :define-key-after-load
+    ;; When `feature-name-mode-map' is defined in `feature-name',
+    ;; use `:define-key-after-load'.
+    ((feature-name-mode-map
+      ("M-r" . #'feature-name-command3)
+      ("M-c" . #'feature-name-command4)))
+
+
+    ;; When `other-package-mode-map' is defined in `other-package', which is not `feature-name',
+    ;; use `:define-key-with-feature'.
+    :define-key-with-feature
+    ((other-package
+      (other-package-mode-map
+       ("M-q" . #'feature-name-command5)))))
+
+  ;; Expanded to:
+  (mic-core feature-name
+    :eval
+    ((define-key global-map (kbd "M-l") #'feature-name-command1)
+     (define-key prog-mode-map (kbd "M-a") #'feature-name-comman2)
+     (with-eval-after-load 'other-package
+       (define-key other-package-mode-map (kbd "M-q") #'feature-name-command5)))
+    :eval-after-load
+    ((define-key feature-name-mode-map (kbd "M-r") #'feature-name-command3)
+     (define-key feature-name-mode-map (kbd "M-c") #'feature-name-command4)))
+
+  ;; Expanded to:
+  (prog1 'feature-name
+    (with-eval-after-load 'feature-name
+      ;; `:define-key-after-load'
+      (define-key feature-name-mode-map (kbd "M-r") #'feature-name-command3)
+      (define-key feature-name-mode-map (kbd "M-c") #'feature-name-command4))
+    ;; `:define-key'
+    (define-key global-map (kbd "M-l") #'feature-name-command1)
+    (define-key prog-mode-map (kbd "M-a") #'feature-name-comman2)
+    ;; `:define-key-with-feature'
+    (with-eval-after-load 'other-package
+      (define-key other-package-mode-map (kbd "M-q") #'feature-name-command5)))
+#+end_src
+
+** =:face=
+This is transformed to =custom-set-faces= sexp.
+Each element is =(FACE-SYMBOL . FACE-DEFINITION)=.
+
+#+begin_src emacs-lisp :tangle yes
+  (mic feature-name
+    :face
+    ((face-1
+      . ((t (:foreground "red" :height 10.0))))
+     (face-2
+      . ((t (:background "#006000" :foreground "white" :bold t))))))
+
+  ;; Expanded to:
+  (mic-core feature-name
+    :eval
+    ((custom-set-faces
+      '(face-1
+        ((t (:foreground "red" :height 10.0))))
+      '(face-2
+        ((t (:background "#006000" :foreground "white" :bold t))))))
+    :eval-after-load nil)
+
+  ;; Expanded to:
+  (prog1 'feature-name
+    (custom-set-faces
+     '(face-1
+       ((t (:foreground "red" :height 10.0))))
+     '(face-2
+       ((t (:background "#006000" :foreground "white" :bold t))))))
+#+end_src
+
+** =:hook=
+This is transformed to =add-hook= sexp.
+Each element is =(HOOK . FUNCTION)=.
+
+#+begin_src emacs-lisp :tangle yes
+  (mic feature-name
+    :hook
+    ;; #' is needed
+    ((hook1 . #'function1)
+     (hook2 . #'function2)
+     ;; `lambda' is allowed (but not recommended)
+     (hook3 . (lambda (arg) 1))))
+
+  ;; Expanded to:
+  (mic-core feature-name
+    :eval
+    ((add-hook 'hook1 #'function1)
+     (add-hook 'hook2 #'function2)
+     (add-hook 'hook3 (lambda (arg) 1)))
+    :eval-after-load nil)
+
+  ;; Expanded to:
+  (prog1 'feature-name
+    (add-hook 'hook1 #'function1)
+    (add-hook 'hook2 #'function2)
+    (add-hook 'hook3 (lambda (arg) 1)))
+#+end_src
+
+** =:package=
+This is transformed to =package-install= sexps.
+Each arguments are =PKG= used by =package-install=.
+
+The expandation result is complicated, because it is annoying to fetch package archives many times.
+
+
+#+begin_src emacs-lisp :tangle yes
+  (mic feature-name
+    :package
+    (package-name1
+     package-name2))
+
+  ;; Expanded to:
+  (mic-core feature-name
+    :eval
+    ;; When package is not installed
+    ((unless (package-installed-p 'package-name1)
+       ;; Ensure package is exists in archive
+       (when (assq 'package-name1 package-archive-contents)
+         (ignore-errors
+           (package-install 'package-name1)))
+       (unless (package-installed-p 'package-name1)
+         ;; Refresh (fetch) new archive
+         (package-refresh-contents)
+         (condition-case _
+             (package-install 'package-name1)
+           (error
+            (warn "Package %s is not found" 'package-name1)))))
+
+     (unless (package-installed-p 'package-name2)
+       (when (assq 'package-name2 package-archive-contents)
+         (ignore-errors
+           (package-install 'package-name2)))
+       (unless (package-installed-p 'package-name2)
+         (package-refresh-contents)
+         (condition-case _
+             (package-install 'package-name2)
+           (error
+            (warn "Package %s is not found" 'package-name2))))))
+    :eval-after-load nil)
+
+  ;; Expand to:
+  (prog1 'feature-name
+    (unless (package-installed-p 'package-name1)
+      (when (assq 'package-name1 package-archive-contents)
+        (ignore-errors
+          (package-install 'package-name1)))
+      (unless (package-installed-p 'package-name1)
+        (package-refresh-contents)
+        (condition-case _
+            (package-install 'package-name1)
+          (error
+           (warn "Package %s is not found" 'package-name1)))))
+    (unless (package-installed-p 'package-name2)
+      (when (assq 'package-name2 package-archive-contents)
+        (ignore-errors
+          (package-install 'package-name2)))
+      (unless (package-installed-p 'package-name2)
+        (package-refresh-contents)
+        (condition-case _
+            (package-install 'package-name2)
+          (error
+           (warn "Package %s is not found" 'package-name2))))))
+#+end_src
+
 * Alternative
 :PROPERTIES:
 :CUSTOM_ID: alternative
