@@ -326,9 +326,25 @@ The valid properties are:
       package-2))
    . (prog1 'feature-name
        (unless (package-installed-p 'package-1)
-         (package-install 'package-1))
+         (when (assq 'package-1 package-archive-contents)
+           (ignore-errors
+             (package-install 'package-1)))
+         (unless (package-installed-p 'package-1)
+           (package-refresh-contents)
+           (condition-case _
+               (package-install 'package-1)
+             (error
+              (warn "Package %s is not found" 'package-1)))))
        (unless (package-installed-p 'package-2)
-         (package-install 'package-2)))))
+         (when (assq 'package-2 package-archive-contents)
+           (ignore-errors
+             (package-install 'package-2)))
+         (unless (package-installed-p 'package-2)
+           (package-refresh-contents)
+           (condition-case _
+               (package-install 'package-2)
+             (error
+              (warn "Package %s is not found" 'package-2))))))))
 
 
 

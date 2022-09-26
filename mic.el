@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.13.2
+;; Version: 0.13.3
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -389,7 +389,14 @@ Each element is package symbol."
   (mapcar
    (lambda (arg)
      `(unless (package-installed-p ',arg)
-        (package-install ',arg)))
+        (when (assq ',arg package-archive-contents)
+          (ignore-errors (package-install ',arg)))
+        (unless (package-installed-p ',arg)
+          (package-refresh-contents)
+          (condition-case _
+              (package-install ',arg)
+            (error
+             (warn "Package %s is not found" ',arg))))))
    list))
 
 (defun mic-filter-package (plist)
