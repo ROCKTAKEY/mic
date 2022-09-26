@@ -66,7 +66,7 @@ For Emacs Lisp beginners, original =mic= macro is useful to configure your =init
     ((message "This is evaluated when this `mic' sexp is evaluated.")
      (message "This is also evaluated."))
 
-    ;; Each element will be evaluated when the package (`lsp-mode' for this example) is loaded.
+    ;; Each element will be evaluated after the package (`lsp-mode' for this example) is loaded.
     :eval-after-load
     ((message "This is evaluated when `lsp-mode' is loaded."))
 
