@@ -332,48 +332,48 @@ The valid properties are:
 
 
 
-(ert-deftest mic--plist-put ()
+(ert-deftest mic-plist-put ()
   (let ((plist '(:foo 1 :bar 2)))
-    (mic--plist-put plist :baz 3)
+    (mic-plist-put plist :baz 3)
     (should (eq (plist-get plist :foo) 1))
     (should (eq (plist-get plist :bar) 2))
     (should (eq (plist-get plist :baz) 3)))
 
   (let (plist)
-    (mic--plist-put plist :baz 3)
+    (mic-plist-put plist :baz 3)
     (should (eq (plist-get plist :baz) 3))))
 
-(ert-deftest mic--plist-put-append ()
+(ert-deftest mic-plist-put-append ()
   (let ((plist '(:foo 1 :bar 2)))
-    (mic--plist-put-append plist :baz '(3))
+    (mic-plist-put-append plist :baz '(3))
     (should (eq (plist-get plist :foo) 1))
     (should (eq (plist-get plist :bar) 2))
     (should (equal (plist-get plist :baz) '(3))))
 
   (let ((plist '(:foo (1) :bar (2))))
-    (mic--plist-put-append plist :bar '(3))
+    (mic-plist-put-append plist :bar '(3))
     (should (equal (plist-get plist :foo) '(1)))
     (should (equal (plist-get plist :bar) '(2 3))))
 
   (let (plist)
-    (mic--plist-put-append plist :baz '(3))
+    (mic-plist-put-append plist :baz '(3))
     (should (equal (plist-get plist :baz) '(3)))))
 
-(ert-deftest mic--plist-delete ()
+(ert-deftest mic-plist-delete ()
   (let ((plist '(:foo 1 :bar 2)))
-    (mic--plist-delete plist :foo)
+    (mic-plist-delete plist :foo)
     (should-not (plist-get plist :foo))
     (should (eq (plist-get plist :bar) 2))
     (should (equal plist '(:bar 2))))
 
   (let ((plist '(:foo 1 :bar 2)))
-    (mic--plist-delete plist :bar)
+    (mic-plist-delete plist :bar)
     (should (eq (plist-get plist :foo) 1))
     (should-not (plist-get plist :bar))
     (should (equal plist '(:foo 1))))
 
   (let ((plist '(:foo 1 :bar 2 :baz 3)))
-    (mic--plist-delete plist :bar :foo)
+    (mic-plist-delete plist :bar :foo)
     (should-not (plist-get plist :foo))
     (should-not (plist-get plist :bar))
     (should (eq (plist-get plist :baz) 3))
@@ -391,8 +391,8 @@ It return PLIST but each value on some property below is replaced:
 (:foo t :bar
       '(2 4))
 "
-       (mic--plist-put plist :foo t)
-       (mic--plist-put plist :bar '(2 4))
+       (mic-plist-put plist :foo t)
+       (mic-plist-put plist :bar '(2 4))
        plist))
   ((mic-deffilter-const func-name
      "docstring"
@@ -400,8 +400,8 @@ It return PLIST but each value on some property below is replaced:
      :bar '(2 4))
    . (defun func-name (plist)
        "docstring"
-       (mic--plist-put plist :foo t)
-       (mic--plist-put plist :bar '(2 4))
+       (mic-plist-put plist :foo t)
+       (mic-plist-put plist :bar '(2 4))
        plist)))
 
 (ert-deftest mic-deffilter-const ()
@@ -426,9 +426,9 @@ It return PLIST but each value on some property below is appended:
  :bar
  '(2 4))
 "
-       (mic--plist-put-append plist :foo
+       (mic-plist-put-append plist :foo
                               '(t))
-       (mic--plist-put-append plist :bar
+       (mic-plist-put-append plist :bar
                               '(2 4))
        plist))
   ((mic-deffilter-const-append func-name
@@ -437,8 +437,8 @@ It return PLIST but each value on some property below is appended:
      :bar '(2 4))
    . (defun func-name (plist)
        "docstring"
-       (mic--plist-put-append plist :foo '(t))
-       (mic--plist-put-append plist :bar '(2 4))
+       (mic-plist-put-append plist :foo '(t))
+       (mic-plist-put-append plist :bar '(2 4))
        plist)))
 
 (ert-deftest mic-deffilter-const-append ()
@@ -457,10 +457,10 @@ It return PLIST but each value on some property below is appended:
      filter2
      filter3)
    . (progn
-       (mic--plist-put plist :name name-var)
+       (mic-plist-put plist :name name-var)
        (setq plist
              (thread-last plist filter1 filter2 filter3))
-       (mic--plist-delete plist :name))))
+       (mic-plist-delete plist :name))))
 
 (mic-ert-macroexpand-1 mic-defmic-macroexpand-1
   ((mic-defmic macro-name parent-name
