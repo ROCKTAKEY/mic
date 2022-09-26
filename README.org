@@ -210,5 +210,16 @@ For Emacs Lisp expert, original =mic= is a little unsatisfactory or redundant.
 :PROPERTIES:
 :CUSTOM_ID: alternative
 :END:
+There is some alternative:
+- [[https://github.com/jwiegley/use-package][=use-package=]]
+- [[https://github.com/conao3/leaf.el][=leaf=]]
+
+They are more easy to use, but sometimes have less expressive ability.
+=mic= is more simple and has more expressive ability, but sometimes more redundant.
+It is just your preference.
+
+In addition, they are customizable, while =mic= is not customizable, but re-definable.
+You can define your own =mic= according to your preference, with =mic= help.
+
 * License
   This package is licensed by GPLv3. See [[file:LICENSE][LICENSE]].
