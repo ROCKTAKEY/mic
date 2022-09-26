@@ -15,6 +15,197 @@ used to core to define your own, another, more convenient =mic=.
 There are some functions to define your own =mic=.
 
 * How to Use?
+For Emacs Lisp beginners, original =mic= macro is useful to configure your =init.el=.
+#+begin_src emacs-lisp :tangle yes
+  (mic lsp-mode
+    ;; These are transformed to `define-key' sexp.
+    ;; Each argument is `(KEYMAP (KEYS . COMMAND)...)'.
+    ;; KEYS is passed to `kbd'.
+    :define-key
+    ((global-map
+      ("M-l" . #'lsp)))
+
+    ;; These are same as `:define-key' argument,
+    ;; but evaluated after loading the package (`lsp-mode' for this example).
+    ;; This is needed because `lsp-mode-map' is unavailable before `lsp'
+    ;; loading.
+    :define-key-after-load
+    ((lsp-mode-map
+      ("M-r" . #'lsp-rename)
+      ("M-c" . #'lsp-execute-code-action)))
+
+    ;; These are transformed to `with-eval-after-load' and `define-key' sexp.
+    ;; Each argument is `(FEATURE (KEYMAP (KEYS . COMMAND)...))'.
+    ;; `cdr' is same as `:define-key' arguments. Each `define-key' sexp is
+    ;; evaluated after FEATURE is loaded.
+    ;; This is needed because `dired-mode-map' is unavailable before `dired'
+    ;; loading.
+    :define-key-with-feature
+    ((dired
+      (dired-mode-map
+       ("M-q" . #'lsp-dired-mode))))
+
+    ;; These are transformed to `customize-set-variable' sexp.
+    ;; Each argument is `(VARIABLE . VALUE)'.
+    :custom
+    ((lsp-sesstion-file . (expand-file-name "etc/.lsp-session-v1" user-emacs-directory))
+     (lsp-log-io . t))
+
+    ;; These are transformed to `add-hook' sexp.
+    ;; Each argument is `(HOOK . FUNCTION)'.
+    :hook
+    ((c-mode-hook . #'lsp)
+     (c++-mode-hook . #'lsp)
+     (tex-mode-hook . #'lsp)
+     (latex-mode-hook . #'lsp)
+     (bibtex-mode-hook . #'lsp)
+     (rust-mode-hook . #'lsp))
+
+    ;; Each element is evaluated immediately when this `mic' sexp is evaluated.
+    :eval
+    ((message "This is evaluated when this `mic' sexp is evaluated.")
+     (message "This is also evaluated."))
+
+    ;; Each element will be evaluated when the package (`lsp-mode' for this example) is loaded.
+    :eval-after-load
+    ((message "This is evaluated when `lsp-mode' is loaded."))
+
+    ;; Each element is evaluated immediately when this `mic' sexp is evaluated.
+    ;; These are evaluated before `:eval' and `:eval-after-load' elements.
+    ;; This is for such use as defining function to use `:custom' argument.
+    :eval-before-all
+    ((message "This is evaluated when this `mic' sexp is evaluated.")
+     (message "These are evaluated before `:eval' and `:eval-after-load' sexp.")))
+
+
+  ;; `mic' sexp above is expanded to:
+  (prog1 'lsp-mode
+    ;; `:eval-before-all'
+    (message "This is evaluated when this `mic' sexp is evaluated.")
+    (message "These are evaluated before `:eval' and `:eval-after-load' sexp.")
+
+    ;; `:eval-after-load'
+    (with-eval-after-load 'lsp-mode
+      (message "This is evaluated when `lsp-mode' is loaded.")
+      ;; `:define-key-after-load'
+      (define-key lsp-mode-map
+        (kbd "M-r")
+        (function lsp-rename))
+      (define-key lsp-mode-map
+        (kbd "M-c")
+        (function lsp-execute-code-action)))
+
+    ;; `:eval'
+    (message "This is evaluated when this `mic' sexp is evaluated.")
+    (message "This is also evaluated.")
+
+    ;; `:custom'
+    (customize-set-variable 'lsp-sesstion-file
+                             (expand-file-name "etc/.lsp-session-v1" user-emacs-directory))
+    (customize-set-variable 'lsp-log-io t)
+
+    ;; `:define-key'
+    (define-key global-map (kbd "M-l") #'lsp)
+
+    ;; `:define-key-with-feature'
+    (with-eval-after-load 'dired
+      (define-key dired-mode-map (kbd "M-q") #'lsp-dired-mode))
+
+    ;; `:hook'
+    (add-hook 'c-mode-hook #'lsp)
+    (add-hook 'c++-mode-hook #'lsp)
+    (add-hook 'tex-mode-hook #'lsp)
+    (add-hook 'latex-mode-hook #'lsp)
+    (add-hook 'bibtex-mode-hook #'lsp)
+    (add-hook 'rust-mode-hook #'lsp))
+#+end_src
+
+For Emacs Lisp expert, original =mic= is a little unsatisfactory or redundant.
+=mic= is not customizable, but you can define your own =mic= easily.
+1. Determine parent. You can use as parent =mic=, =mic-core=, which is simpler =mic=.
+   =mic-core= recieves only keywords start from =:eval=, such as =:eval=, =eval-after-load=.
+2. Define filter functions. Each one recieves plist (property list) and returns plist.
+   returned plist is passed to parent (such as =mic=, =mic-core=) or next filter.
+   Note that filter function can get package name as value of property =:name=.
+   Of course, you can use pre-defined filters. =mic= is defined by some filters
+   from the parent =mic-core=.
+3. Define your own mic by =mic-defmic=. It recieves =NAME=, optional =DOCSTRING=,
+   and keyword argument =FILTERS=. =NAME= is name of your own =mic=.
+   =DOCSTRING= is the document string of yours. =FILTERS= are list of filter.
+   As explained, filter recieves plist and returns plist. It filter plist to get
+   desired behavior.
+
+#+begin_src emacs-lisp :tangle yes
+  (defun my-filter-global-set-key-without-quote (plist)
+
+    (let ((alist
+           ;; Get value from your own keyword
+           (plist-get plist :bind))
+          sexps)
+      (setq sexps
+            ;; Transform each element
+            (mapcar
+             (lambda (arg)
+               (let ((keys (car arg))
+                     (command (cdr arg)))
+                 `(global-set-key (kbd ,keys) #',command)))
+             alist))
+      ;; Put sexps to `:eval' arguments
+      (mic-plist-put-append plist :eval sexps)
+      ;; Don't forget to delete your own keyword!
+      ;; When forget it, parent recieves it and may cause unexpected result.
+      (mic-plist-delete plist :bind)
+      plist))
+
+  (mic-defmic mymic
+    ;; Parent is here. You can also use `mic-core'.
+    mic
+    :filters
+    '(my-filter-global-set-key-without-quote
+      ;; You can add other filters below
+      ))
+
+  ;; Then you can use `mymic' like:
+  (mymic simple
+    :bind
+    (("C-d" . delete-forward-char)
+     ("C-x l" . toggle-truncate-lines))
+    ;; Of course parent keywords are accepted.
+    :custom
+    ((kill-whole-line . t)
+     (set-mark-command-repeat-pop . t)
+     (mark-ring-max . 50)))
+
+  ;; `mymic' sexp is expanded to:
+  (mic simple
+    :custom
+    ((kill-whole-line . t)
+     (set-mark-command-repeat-pop . t)
+     (mark-ring-max . 50))
+    :eval
+    ((global-set-key (kbd "C-d") #'delete-forward-char)
+     (global-set-key (kbd "C-x l") #'toggle-truncate-lines)))
+
+  ;; Expanded to:
+  (mic-core simple
+    :eval
+    ((global-set-key (kbd "C-d") #'delete-forward-char)
+     (global-set-key (kbd "C-x l") #'toggle-truncate-lines)
+     (customize-set-variable 'kill-whole-line t)
+     (customize-set-variable 'set-mark-command-repeat-pop t)
+     (customize-set-variable 'mark-ring-max 50))
+    :eval-after-load nil)
+
+  ;; Expanded to:
+  (prog1 'simple
+    (global-set-key  (kbd "C-d") #'delete-forward-char)
+    (global-set-key (kbd "C-x l") #'toggle-truncate-lines)
+    (customize-set-variable 'kill-whole-line t)
+    (customize-set-variable 'set-mark-command-repeat-pop t)
+    (customize-set-variable 'mark-ring-max 50))
+#+end_src
+
+
 * Use =mic-core=, minimum one
 * Use default =mic=
 * Alternative
