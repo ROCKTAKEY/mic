@@ -205,6 +205,98 @@ For Emacs Lisp expert, original =mic= is a little unsatisfactory or redundant.
 #+end_src
 
 * Use =mic-core=, minimum one
+:PROPERTIES:
+:CUSTOM_ID: mic-core
+:END:
+=mic-core= is minimum. It can recieves only 5 keywords:
+- =:eval=
+- =:eval-after-load=
+- =:eval-after-others=
+- =:eval-after-others-after-load=
+- =:eval-before-all=
+
+Each element of =:eval= arguments are evaluated.
+Time to evaluate is different.
+
+** =:eval=, =:eval-after-others=, =:eval-before-all=
+Each element of these arguments are evaluated when the =mic= sexp is evaluated.
+The order is:
+- =:eval-before-all=
+- (=with-eval-after-load= sexp, explained on [[eval-after-load][=eval-after-load= keyword section]], is evaluated)
+- =:eval=
+- =:eval-after-others=
+
+#+begin_src emacs-lisp :tangle yes
+  (mic-core package-name
+    :eval
+    ((message "eval1")
+     (message "eval2"))
+    :eval-after-others
+    ((message "eval-after-others1")
+     (message "eval-after-others2"))
+    :eval-before-all
+    ((message "eval-before-all1")
+     (message "eval-before-all2"))
+    :eval-after-load
+    ((message "eval-after-load1")
+     (message "eval-after-load2")))
+
+  ;; Expanded to:
+  (prog1 'package-name
+    (message "eval-before-all1")
+    (message "eval-before-all2")
+    (with-eval-after-load 'package-name
+      (message "eval-after-load1")
+      (message "eval-after-load2"))
+    (message "eval1")
+    (message "eval2")
+    (message "eval-after-others1")
+    (message "eval-after-others2"))
+#+end_src
+
+=:eval-before-all= exists because a filter function appends sexp to =:eval= argument.
+When some action should be evaluated before all action added by other filters,
+you can put it to =:eval-before-all= argument. *Note that it should NOT be used
+by filters.* Any filter should not use this. If it is used by filters,
+users cannot make their sexp to be evaluate before filter sexps.
+
+=:eval-after-others= exists because similar reason to =:eval-before-all=.
+Some action should be evaluated after all action added by other filters.
+Because of same reasons as =:eval-before-all=, *it should NOT be used
+by filters*.
+
+** =:eval-after-load=, =:eval-after-others-after-load=
+:PROPERTIES:
+:CUSTOM_ID: eval-after-load
+:END:
+Each element of these arguments are evaluated after the package is loaded.
+The evaluated order is:
+- =:eval-after-load=
+- =:eval-after-others-after-load=
+
+#+begin_src emacs-lisp :tangle yes
+  (mic-core package-name
+    :eval-after-load
+    ((message "eval-after-load1")
+     (message "eval-after-load2"))
+    :eval-after-others-after-load
+    ((message "eval-after-others-after-load1")
+     (message "eval-after-others-after-load2")))
+
+  ;; Expanded to:
+  (prog1 'package-name
+    (with-eval-after-load 'package-name
+      (message "eval-after-load1")
+      (message "eval-after-load2")
+      (message "eval-aftepr-others-after-load1")
+      (message "eval-after-others-after-load2")))
+#+end_src
+
+=:eval-after-others-after-load= exists because similar reason to =:eval-after-others=.
+Some action should be evaluated after all action added by other filters.
+Because of same reasons as =:eval-before-all=, *it should NOT be used
+by filters*.
+
 * Use default =mic=
 * Alternative
 :PROPERTIES:
