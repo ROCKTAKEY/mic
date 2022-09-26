@@ -8,11 +8,11 @@
 #+END_QUOTE
 
 =mic= is minimal configuration manager for Emacs.
-This package is yet another =use-package= and =leaf=, but is also used with them (See [[#alternative]]).
+This package is yet another =use-package= and =leaf=, but is also used with them (See [[#alternative][Alternative]]).
 =mic= is minimal, so if you would like to write complex configuration,
 =mic= is a little redundant. However, there is no problem. =mic= is thought to be
 used to core to define your own, another, more convenient =mic=.
-There are some functions to define your own =mic=.
+There are some functions to define your own =mic=. See [[#define-your-mic][Define your own mic]].
 
 * How to Use?
 For Emacs Lisp beginners, original =mic= macro is useful to configure your =init.el=.
@@ -614,6 +614,9 @@ The expandation result is complicated, because it is annoying to fetch package a
 #+end_src
 
 * Define your own =mic=
+:PROPERTIES:
+:CUSTOM_ID: define-your-mic
+:END:
 You do not like =mic= behavior? It is OK. You can define your own =mic=!
 There are some ways to define it:
 - Use =mic-defmic=
