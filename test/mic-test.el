@@ -110,55 +110,55 @@ The valid properties are:
 
 
 (mic-ert-macroexpand-2 mic-autoload-interactive
-  ((mic package-name
+  ((mic feature-name
      :autoload-interactive
      (find-file
       write-file))
-   . (prog1 'package-name
-       (autoload #'find-file "package-name" nil t)
-       (autoload #'write-file "package-name" nil t))))
+   . (prog1 'feature-name
+       (autoload #'find-file "feature-name" nil t)
+       (autoload #'write-file "feature-name" nil t))))
 
 (mic-ert-macroexpand-2 mic-autoload-noninteractive
-  ((mic package-name
+  ((mic feature-name
      :autoload-noninteractive
      (cl-map
       cl-mapcar))
-   . (prog1 'package-name
-       (autoload #'cl-map "package-name")
-       (autoload #'cl-mapcar "package-name"))))
+   . (prog1 'feature-name
+       (autoload #'cl-map "feature-name")
+       (autoload #'cl-mapcar "feature-name"))))
 
 (mic-ert-macroexpand-2 mic-custom
-  ((mic package-name
+  ((mic feature-name
      :custom
      ((a . 1)
       (b . (+ 1 2))))
-   . (prog1 'package-name
+   . (prog1 'feature-name
        (customize-set-variable 'a 1)
        (customize-set-variable 'b
                                (+ 1 2)))))
 
 (mic-ert-macroexpand-2 mic-custom-after-load
-  ((mic package-name
+  ((mic feature-name
      :custom-after-load
      ((a . 1)
       (b . (+ 1 2))))
-   . (prog1 'package-name
-       (with-eval-after-load 'package-name
+   . (prog1 'feature-name
+       (with-eval-after-load 'feature-name
          (customize-set-variable 'a 1)
          (customize-set-variable 'b
                                  (+ 1 2))))))
 
 (mic-ert-macroexpand-2 mic-declare-function
-  ((mic package-name
+  ((mic feature-name
      :declare-function
      (find-file
       write-file))
-   . (prog1 'package-name
-       (declare-function find-file "ext:package-name")
-       (declare-function write-file "ext:package-name"))))
+   . (prog1 'feature-name
+       (declare-function find-file "ext:feature-name")
+       (declare-function write-file "ext:feature-name"))))
 
 (mic-ert-macroexpand-2 mic-define-key
-  ((mic package-name
+  ((mic feature-name
      :define-key
      ((global-map
        ("C-t" . #'other-window)
@@ -166,14 +166,14 @@ The valid properties are:
       (prog-mode-map
        ("M-a" . #'beginning-of-buffer)
        ("M-e" . #'end-of-buffer))))
-   . (prog1 'package-name
+   . (prog1 'feature-name
        (define-key global-map (kbd "C-t") #'other-window)
        (define-key global-map (kbd "C-n") #'next-window)
        (define-key prog-mode-map (kbd "M-a") #'beginning-of-buffer)
        (define-key prog-mode-map (kbd "M-e") #'end-of-buffer))))
 
 (mic-ert-macroexpand-2 mic-define-key-after-load
-  ((mic package-name
+  ((mic feature-name
      :define-key-after-load
      ((c-mode-map
        ("C-t" . #'other-window)
@@ -181,15 +181,15 @@ The valid properties are:
       (c++-mode-map
        ("M-a" . #'beginning-of-buffer)
        ("M-e" . #'end-of-buffer))))
-   . (prog1 'package-name
-       (with-eval-after-load 'package-name
+   . (prog1 'feature-name
+       (with-eval-after-load 'feature-name
          (define-key c-mode-map (kbd "C-t") #'other-window)
          (define-key c-mode-map (kbd "C-n") #'next-window)
          (define-key c++-mode-map (kbd "M-a") #'beginning-of-buffer)
          (define-key c++-mode-map (kbd "M-e") #'end-of-buffer)))))
 
 (mic-ert-macroexpand-2 mic-define-key-with-feature
-  ((mic package-name
+  ((mic feature-name
      :define-key-with-feature
      ((cc-mode
        (c-mode-map
@@ -201,7 +201,7 @@ The valid properties are:
       (python
        (python-mode-map
         ("C-t" . #'python-check)))))
-   . (prog1 'package-name
+   . (prog1 'feature-name
        (with-eval-after-load 'cc-mode
          (define-key c-mode-map (kbd "C-t") #'other-window)
          (define-key c-mode-map (kbd "C-n") #'next-window)
@@ -211,35 +211,35 @@ The valid properties are:
          (define-key python-mode-map (kbd "C-t") #'python-check)))))
 
 (mic-ert-macroexpand-2 mic-defvar-noninitial
-  ((mic package-name
+  ((mic feature-name
      :defvar-noninitial
      (skk-jisyo
       skk-use-azik))
-   . (prog1 'package-name
+   . (prog1 'feature-name
        (defvar skk-jisyo)
        (defvar skk-use-azik))))
 
 (mic-ert-macroexpand-2 mic-eval
-  ((mic package-name
+  ((mic feature-name
      :eval
      ((message "Hello")
       (message "World")))
-   . (prog1 'package-name
+   . (prog1 'feature-name
        (message "Hello")
        (message "World"))))
 
 (mic-ert-macroexpand-2 mic-eval-after-load
-  ((mic package-name
+  ((mic feature-name
      :eval-after-load
      ((message "Hello")
       (message "World")))
-   . (prog1 'package-name
-       (with-eval-after-load 'package-name
+   . (prog1 'feature-name
+       (with-eval-after-load 'feature-name
          (message "Hello")
          (message "World")))))
 
 (mic-ert-macroexpand-2 mic-eval-after-others
-  ((mic package-name
+  ((mic feature-name
      :custom
      ((skk-jisyo . "~/skk-jisyo"))
      :eval
@@ -248,7 +248,7 @@ The valid properties are:
      :eval-after-others
      ((message "after")
       (message "custom")))
-   . (prog1 'package-name
+   . (prog1 'feature-name
        (message "before")
        (message "custom")
        (customize-set-variable
@@ -258,7 +258,7 @@ The valid properties are:
        (message "custom"))))
 
 (mic-ert-macroexpand-2 mic-eval-after-others-after-load
-  ((mic package-name
+  ((mic feature-name
      :custom-after-load
      ((skk-jisyo . "~/skk-jisyo"))
      :eval-after-load
@@ -267,8 +267,8 @@ The valid properties are:
      :eval-after-others-after-load
      ((message "after")
       (message "custom")))
-   . (prog1 'package-name
-       (with-eval-after-load 'package-name
+   . (prog1 'feature-name
+       (with-eval-after-load 'feature-name
          (message "before")
          (message "custom")
          (customize-set-variable
@@ -278,7 +278,7 @@ The valid properties are:
          (message "custom")))))
 
 (mic-ert-macroexpand-2 mic-eval-before-all
-  ((mic package-name
+  ((mic feature-name
      :custom
      ((skk-jisyo . "~/skk-jisyo"))
      :eval
@@ -287,7 +287,7 @@ The valid properties are:
      :eval-before-all
      ((message "before")
       (message "all")))
-   . (prog1 'package-name
+   . (prog1 'feature-name
        (message "before")
        (message "all")
        (message "before")
@@ -297,13 +297,13 @@ The valid properties are:
         "~/skk-jisyo"))))
 
 (mic-ert-macroexpand-2 mic-face
-  ((mic package-name
+  ((mic feature-name
      :face
      ((aw-leading-char-face
        . ((t (:foreground "red" :height 10.0))))
       (aw-mode-line-face
        . ((t (:background "#006000" :foreground "white" :bold t))))))
-   . (prog1 'package-name
+   . (prog1 'feature-name
        (custom-set-faces
         '(aw-leading-char-face
           ((t (:foreground "red" :height 10.0))))
@@ -311,20 +311,20 @@ The valid properties are:
           ((t (:background "#006000" :foreground "white" :bold t))))))))
 
 (mic-ert-macroexpand-2 mic-hook
-  ((mic package-name
+  ((mic feature-name
      :hook
      ((after-init-hook . #'ignore)
       (prog-mode-hook . (lambda ()))))
-   . (prog1 'package-name
+   . (prog1 'feature-name
        (add-hook 'after-init-hook #'ignore)
        (add-hook 'prog-mode-hook (lambda ())))))
 
 (mic-ert-macroexpand-2 mic-package
-  ((mic package-name
+  ((mic feature-name
      :package
      (package-1
       package-2))
-   . (prog1 'package-name
+   . (prog1 'feature-name
        (unless (package-installed-p 'package-1)
          (package-install 'package-1))
        (unless (package-installed-p 'package-2)
@@ -498,10 +498,10 @@ Argument NAME, PLIST. Used filters are:
   :filters '(mic-test-filter-const-1 mic-test-filter-const-2))
 
 (mic-ert-macroexpand-1 mic-defmic-filters
-  ((mic-test-mic-defmic-filters package-name
+  ((mic-test-mic-defmic-filters feature-name
      :foo (123)
      :bar (456))
-   . (parent-name package-name
+   . (parent-name feature-name
                   :foo
                   (123 1 4 5)
                   :bar
