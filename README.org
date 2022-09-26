@@ -137,7 +137,6 @@ For Emacs Lisp expert, original =mic= is a little unsatisfactory or redundant.
 
 #+begin_src emacs-lisp :tangle yes
   (defun my-filter-global-set-key-without-quote (plist)
-
     (let ((alist
            ;; Get value from your own keyword
            (plist-get plist :bind))
@@ -204,7 +203,6 @@ For Emacs Lisp expert, original =mic= is a little unsatisfactory or redundant.
     (customize-set-variable 'set-mark-command-repeat-pop t)
     (customize-set-variable 'mark-ring-max 50))
 #+end_src
-
 
 * Use =mic-core=, minimum one
 * Use default =mic=
