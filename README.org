@@ -8,7 +8,7 @@
 #+END_QUOTE
 
 =mic= is minimal configuration manager for Emacs.
-This package is yet another =use-package= and =leaf=, but is also used with them (See [[Alternative]]).
+This package is yet another =use-package= and =leaf=, but is also used with them (See [[#alternative]]).
 =mic= is minimal, so if you would like to write complex configuration,
 =mic= is a little redundant. However, there is no problem. =mic= is thought to be
 used to core to define your own, another, more convenient =mic=.
@@ -209,5 +209,8 @@ For Emacs Lisp expert, original =mic= is a little unsatisfactory or redundant.
 * Use =mic-core=, minimum one
 * Use default =mic=
 * Alternative
+:PROPERTIES:
+:CUSTOM_ID: alternative
+:END:
 * License
   This package is licensed by GPLv3. See [[file:LICENSE][LICENSE]].
