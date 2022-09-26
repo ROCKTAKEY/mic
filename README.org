@@ -227,7 +227,7 @@ The order is:
 - =:eval-after-others=
 
 #+begin_src emacs-lisp :tangle yes
-  (mic-core package-name
+  (mic-core feature-name
     :eval
     ((message "eval1")
      (message "eval2"))
@@ -242,10 +242,10 @@ The order is:
      (message "eval-after-load2")))
 
   ;; Expanded to:
-  (prog1 'package-name
+  (prog1 'feature-name
     (message "eval-before-all1")
     (message "eval-before-all2")
-    (with-eval-after-load 'package-name
+    (with-eval-after-load 'feature-name
       (message "eval-after-load1")
       (message "eval-after-load2"))
     (message "eval1")
@@ -275,7 +275,7 @@ The evaluated order is:
 - =:eval-after-others-after-load=
 
 #+begin_src emacs-lisp :tangle yes
-  (mic-core package-name
+  (mic-core feature-name
     :eval-after-load
     ((message "eval-after-load1")
      (message "eval-after-load2"))
@@ -284,8 +284,8 @@ The evaluated order is:
      (message "eval-after-others-after-load2")))
 
   ;; Expanded to:
-  (prog1 'package-name
-    (with-eval-after-load 'package-name
+  (prog1 'feature-name
+    (with-eval-after-load 'feature-name
       (message "eval-after-load1")
       (message "eval-after-load2")
       (message "eval-aftepr-others-after-load1")
