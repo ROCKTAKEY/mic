@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.13.0
+;; Version: 0.13.1
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -69,7 +69,7 @@ Change value in PLIST of PROP to VAL."
 
 
 (defmacro mic-deffilter-const (name &optional docstring &rest plist)
-  "Define filter macro named NAME with document DOCSTRING.
+  "Define filter function named NAME with document DOCSTRING.
 The filter recieves plist and returns plist.
 It replace value on each property in PLIST with each value in PLIST."
   (declare (indent defun))
@@ -90,7 +90,7 @@ It return PLIST but each value on some property below is replaced:
      plist))
 
 (defmacro mic-deffilter-const-append (name &optional docstring &rest plist)
-  "Define filter macro named NAME with document DOCSTRING.
+  "Define filter function named NAME with document DOCSTRING.
 The filter recieves plist and returns plist.
 It append each value in PLIST on each property to recieved plist."
   (declare (indent defun))
