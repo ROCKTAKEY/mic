@@ -12,7 +12,8 @@
 (require 'mic)
 
 (defun mic-filter-straight (plist)
-  "Create `straight-use-package' sexp from PLIST and append to value of :eval."
+  "Create `straight-use-package' sexp from PLIST and append to value of :eval.
+This filter use `:straight' keyword."
   (mic-plist-put-append
    plist :eval
    (mapcar
@@ -23,7 +24,7 @@
 
 (defun mic-filter-el-get (plist)
   "Create `el-get-bundle' sexp from PLIST and append to value of :eval.
-This filter use :el-get keyword."
+This filter use `:el-get' keyword."
   (mic-plist-put-append
    plist :eval
    (mapcar
