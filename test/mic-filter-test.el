@@ -56,19 +56,19 @@
 
 (ert-deftest mic-filter-el-get ()
   (should (equal (mic-filter-el-get '(:el-get (x y (emacs-ja
-                                                    :host github
-                                                    :repo "ayatakesi/ayatakesi.github.io"
+                                                    :type github
+                                                    :pkgname "ayatakesi/ayatakesi.github.io"
                                                     :files ("emacs/26.1/emacs-ja.info")))))
                  '(:eval ((el-get-bundle x)
                           (el-get-bundle y)
                           (el-get-bundle
-                            emacs-ja :host github :repo "ayatakesi/ayatakesi.github.io"
+                            emacs-ja :type github :pkgname "ayatakesi/ayatakesi.github.io"
                             :files ("emacs/26.1/emacs-ja.info"))))))
-  (should (eq (plist-get (mic-filter-straight '( :straight (x y (emacs-ja
-                                                                 :host github
-                                                                 :repo "ayatakesi/ayatakesi.github.io"
-                                                                 :files ("emacs/26.1/emacs-ja.info")))
-                                                 :foo bar))
+  (should (eq (plist-get (mic-filter-el-get '( :el-get (x y (emacs-ja
+                                                    :type github
+                                                    :pkgname "ayatakesi/ayatakesi.github.io"
+                                                    :files ("emacs/26.1/emacs-ja.info")))
+                                               :foo bar))
                          :foo)
               'bar)))
 
