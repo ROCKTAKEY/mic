@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.16.3
+;; Version: 0.16.4
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -661,122 +661,13 @@
 
 (require 'cl-lib)
 (require 'subr-x)
+(require 'mic-deffilter)
 
 (defgroup mic ()
   "Minimal configuration manager."
   :group 'convenience
   :prefix "mic-"
   :link '(url-link "https://github.com/ROCKTAKEY/mic"))
-
-;;;###autoload
-(defmacro mic-plist-put (plist prop val)
-  "Same as `plist-put', but fine when PLIST is nil.
-Change value in PLIST of PROP to VAL."
-  `(if ,plist
-       (plist-put ,plist ,prop ,val)
-     (setq ,plist (list ,prop ,val))))
-
-;;;###autoload
-(defmacro mic-plist-put-append (plist prop val)
-  "Append VAL to value in PLIST of PROP."
-  `(if ,plist
-       (plist-put ,plist ,prop (append (plist-get ,plist ,prop) ,val))
-     (setq ,plist (list ,prop (append (plist-get ,plist ,prop) ,val)))))
-
-;;;###autoload
-(defmacro mic-plist-delete (plist &rest props)
-  "Delete PROPS and their values from PLIST."
-  (let ((original-plist (cl-gensym "plist"))
-        (result (cl-gensym "result"))
-        (key (cl-gensym "key"))
-        (value (cl-gensym "value")))
-    `(let ((,original-plist ,plist)
-           ,result)
-       (while ,original-plist
-         (let ((,key (pop ,original-plist))
-               (,value (pop ,original-plist)))
-           (unless (memq ,key ',props)
-             (push ,key ,result)
-             (push ,value ,result))))
-       (setq ,plist (nreverse ,result)))))
-
-
-
-;;;###autoload
-(defmacro mic-deffilter-const (name &optional docstring &rest plist)
-  "Define filter function named NAME with document DOCSTRING.
-The filter recieves plist and returns plist.
-It replace value on each property in PLIST with each value in PLIST."
-  (declare (indent defun))
-  (unless (stringp docstring)
-    (push docstring plist)
-    (setq docstring nil))
-  `(defun ,name (plist)
-     ,(or docstring
-          (format "Filter for `mic'.
-It return PLIST but each value on some property below is replaced:
-%s" (pp-to-string plist)))
-     ,@(let (result)
-         (while plist
-           (let ((key (pop plist))
-                 (value (pop plist)))
-             (push `(mic-plist-put plist ,key ,value) result)))
-         (nreverse result))
-     plist))
-
-;;;###autoload
-(defmacro mic-deffilter-const-append (name &optional docstring &rest plist)
-  "Define filter function named NAME with document DOCSTRING.
-The filter recieves plist and returns plist.
-It append each value in PLIST on each property to recieved plist."
-  (declare (indent defun))
-  (unless (stringp docstring)
-    (push docstring plist)
-    (setq docstring nil))
-  `(defun ,name (plist)
-     ,(or docstring
-          (format "Filter for `mic'.
-It return PLIST but each value on some property below is appended:
-%s" (pp-to-string plist)))
-     ,@(let (result)
-         (while plist
-           (let ((key (pop plist))
-                 (value (pop plist)))
-             (push `(mic-plist-put-append plist ,key ,value) result)))
-         (nreverse result))
-     plist))
-
-;;;###autoload
-(defmacro mic-deffilter-validate (name &optional docstring &rest keywords)
-  "Define filter function named NAME with document DOCSTRING.
-The filter recieves PLIST and return PLIST.
-It validates PLIST properties and warn if PLIST has invalid properties.
-KEYWORDS is a list of valid properties."
-  (declare (indent defun))
-  (unless (stringp docstring)
-    (push docstring keywords)
-    (setq docstring nil))
-  `(defun ,name (plist)
-     ,(or docstring
-          (format "Filter for `mic'.
-It validates PLIST properties and warn if PLIST has invalid properties.
-The valid properties are:
-%s" (mapconcat
-     (lambda (arg)
-       (concat "`" (symbol-name arg) "'"))
-     keywords
-     "\n")))
-     (let (result)
-       (while plist
-         (let ((key (pop plist))
-               (value (pop plist)))
-           (if (not (memq key (append ',keywords '(:name))))
-               (warn "`mic' %s: The keyword %s is not allowed by filter `%s'" (plist-get plist :name) key ',name)
-             (push key result)
-             (push value result))))
-       (nreverse result))))
-
-
 
 ;;;###autoload
 (defmacro mic-apply-filter (plist name &rest filters)
@@ -791,7 +682,7 @@ NAME is temporarily added to PLIST on :name property."
      (mic-plist-delete ,plist :name)))
 
 ;;;###autoload
-(cl-defmacro mic-defmic (name parent docstring &rest plist)
+(defmacro mic-defmic (name parent docstring &rest plist)
   "Define new `mic' named NAME derived from PARENT.
 DOCSTRING is docuent of it.
 FILTERS is list of filter, which recieve plist and return plist.
