@@ -48,6 +48,8 @@ The test defined by this expands macro once."
                           ',(cdr arg))))
         args)))
 
+
+
 (mic-ert-macroexpand-1 mic-deffilter-const-macroexpand-1
   ((mic-deffilter-const func-name
      :foo t
