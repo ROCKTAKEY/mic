@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.17.0
+;; Version: 0.17.1
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -662,6 +662,7 @@
 (require 'cl-lib)
 (require 'subr-x)
 (require 'mic-deffilter)
+(require 'mic-utils)
 
 (defgroup mic ()
   "Minimal configuration manager."
