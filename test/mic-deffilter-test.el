@@ -120,5 +120,53 @@ It return PLIST but each value on some property below is appended:
     (should (equal (plist-get result :foo) '(1 t)))
     (should (equal (plist-get result :bar) '(2 3 4)))))
 
+(mic-ert-macroexpand-1 mic-deffilter-validate
+  ((mic-deffilter-validate filter-name
+     "docstring"
+     :keyword1
+     :keyword2
+     :keyword3)
+   . (defun filter-name
+         (plist)
+       "docstring"
+       (let (result)
+         (while plist
+           (let ((key (pop plist))
+                 (value (pop plist)))
+             (if (not
+                  (memq key (append
+                             '(:keyword1 :keyword2 :keyword3)
+                             '(:name))))
+               (warn "`mic' %s: The keyword %s is not allowed by filter `%s'"
+                     (plist-get plist :name) key 'filter-name)
+               (push key result)
+               (push value result))))
+         (nreverse result))))
+  ((mic-deffilter-validate filter-name
+     :keyword1
+     :keyword2
+     :keyword3)
+   . (defun filter-name
+         (plist)
+       "Filter for `mic'.
+It validates PLIST properties and warn if PLIST has invalid properties.
+The valid properties are:
+`:keyword1'
+`:keyword2'
+`:keyword3'"
+       (let (result)
+         (while plist
+           (let ((key (pop plist))
+                 (value (pop plist)))
+             (if (not
+                  (memq key (append
+                             '(:keyword1 :keyword2 :keyword3)
+                             '(:name))))
+               (warn "`mic' %s: The keyword %s is not allowed by filter `%s'"
+                     (plist-get plist :name) key 'filter-name)
+               (push key result)
+               (push value result))))
+         (nreverse result)))))
+
 (provide 'mic-deffilter-test)
 ;;; mic-deffilter-test.el ends here

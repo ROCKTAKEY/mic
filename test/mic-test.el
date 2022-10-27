@@ -59,56 +59,6 @@ The test defined by this expands macro twice."
 
 
 
-(mic-ert-macroexpand-1 mic-deffilter-validate
-  ((mic-deffilter-validate filter-name
-     "docstring"
-     :keyword1
-     :keyword2
-     :keyword3)
-   . (defun filter-name
-         (plist)
-       "docstring"
-       (let (result)
-         (while plist
-           (let ((key (pop plist))
-                 (value (pop plist)))
-             (if (not
-                  (memq key (append
-                             '(:keyword1 :keyword2 :keyword3)
-                             '(:name))))
-               (warn "`mic' %s: The keyword %s is not allowed by filter `%s'"
-                     (plist-get plist :name) key 'filter-name)
-               (push key result)
-               (push value result))))
-         (nreverse result))))
-  ((mic-deffilter-validate filter-name
-     :keyword1
-     :keyword2
-     :keyword3)
-   . (defun filter-name
-         (plist)
-       "Filter for `mic'.
-It validates PLIST properties and warn if PLIST has invalid properties.
-The valid properties are:
-`:keyword1'
-`:keyword2'
-`:keyword3'"
-       (let (result)
-         (while plist
-           (let ((key (pop plist))
-                 (value (pop plist)))
-             (if (not
-                  (memq key (append
-                             '(:keyword1 :keyword2 :keyword3)
-                             '(:name))))
-               (warn "`mic' %s: The keyword %s is not allowed by filter `%s'"
-                     (plist-get plist :name) key 'filter-name)
-               (push key result)
-               (push value result))))
-         (nreverse result)))))
-
-
-
 (mic-ert-macroexpand-2 mic-autoload-interactive
   ((mic feature-name
      :autoload-interactive
