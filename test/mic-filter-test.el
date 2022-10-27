@@ -41,11 +41,11 @@
                                                         :host github
                                                         :repo "ayatakesi/ayatakesi.github.io"
                                                         :files ("emacs/26.1/emacs-ja.info")))))
-                 '(:eval ((straight-use-package 'x)
-                          (straight-use-package 'y)
-                          (straight-use-package
-                           '(emacs-ja :host github :repo "ayatakesi/ayatakesi.github.io"
-                                      :files ("emacs/26.1/emacs-ja.info")))))))
+                 '(:eval-installation ((straight-use-package 'x)
+                                       (straight-use-package 'y)
+                                       (straight-use-package
+                                        '(emacs-ja :host github :repo "ayatakesi/ayatakesi.github.io"
+                                                   :files ("emacs/26.1/emacs-ja.info")))))))
   (should (eq (plist-get (mic-filter-straight '( :straight (x y (emacs-ja
                                                                  :host github
                                                                  :repo "ayatakesi/ayatakesi.github.io"
@@ -60,12 +60,12 @@
                                (zenburn-theme
                                 :url "https://raw.githubusercontent.com/bbatsov/zenburn-emacs/master/zenburn-theme.el"
                                 (load-theme 'zenburn t)))))
-                 '(:eval ((el-get-bundle x)
-                          (el-get-bundle y)
-                          (el-get-bundle
-                            zenburn-theme
-                            :url "https://raw.githubusercontent.com/bbatsov/zenburn-emacs/master/zenburn-theme.el"
-                            (load-theme 'zenburn t))))))
+                 '(:eval-installation ((el-get-bundle x)
+                                       (el-get-bundle y)
+                                       (el-get-bundle
+                                         zenburn-theme
+                                         :url "https://raw.githubusercontent.com/bbatsov/zenburn-emacs/master/zenburn-theme.el"
+                                         (load-theme 'zenburn t))))))
   (should (eq (plist-get (mic-filter-el-get
                           '( :el-get (x y
                                         (zenburn-theme

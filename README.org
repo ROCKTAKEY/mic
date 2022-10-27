@@ -297,6 +297,51 @@ Some action should be evaluated after all action added by other filters.
 Because of same reasons as =:eval-before-all=, *it should NOT be used
 by filters*.
 
+** =:eval-installation=
+:PROPERTIES:
+:CUSTOM_ID: eval-installation
+:END:
+Each element of this argument is evaluated before evaluation of other  =:eval*= argument except =:eval-before-all=.
+This exists because sexp to install the package is evaluated before sexp which uses package features.
+
+#+begin_src emacs-lisp :tangle yes
+  (mic-core feature-name
+    :eval-before-all
+    ((message "before all2")
+     (message "before all1"))
+    :eval-installation
+    ((message "install1")
+     (message "install2"))
+    :eval-after-load
+    ((message "eval-after-load1")
+     (message "eval-after-load2"))
+    :eval-after-others-after-load
+    ((message "eval-after-others-after-load1")
+     (message "eval-after-others-after-load2"))
+    :eval
+    ((message "eval1")
+     (message "eval2")))
+
+  ;; Expanded to:
+  (prog1 'feature-name
+    (message "before all2")
+    (message "before all1")
+    (message "install1")
+    (message "install2")
+    (with-eval-after-load 'feature-name
+      (message "eval-after-load1")
+      (message "eval-after-load2")
+      (message "eval-after-others-after-load1")
+      (message "eval-after-others-after-load2"))
+    (message "eval1")
+    (message "eval2"))
+#+end_src
+
+=:eval-after-others-after-load= exists because similar reason to =:eval-after-others=.
+Some action should be evaluated after all action added by other filters.
+Because of same reasons as =:eval-before-all=, *it should NOT be used
+by filters*.
+
 * Use default =mic=
 =mic= is minimal for use. =mic-core= is minimum core, but it is not enough to use as it is.
 In addition to keywords allowed by [[mic-core][=mic-core=]], it allows some keyword arguments:
