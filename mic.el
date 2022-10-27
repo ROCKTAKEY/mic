@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.16.2
+;; Version: 0.16.3
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -1081,7 +1081,7 @@ In addition, It will evaluate each element of EVAL-AFTER-LOAD and
      ,@eval
      ,@eval-after-others))
 
-;;;###autoload (autoload 'mic "mic")
+;;;###autoload (autoload 'mic "mic" nil nil 'macro)
 (mic-defmic mic mic-core
   :filters
   '(mic-filter-autoload-interactive
