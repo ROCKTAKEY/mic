@@ -57,6 +57,29 @@ It return PLIST but each value on some property below is appended:
      plist))
 
 ;;;###autoload
+(defmacro mic-deffilter-t-to-name (name keyword &optional docstring)
+  "Define filter function named NAME with document DOCSTRING.
+The filter recieves plist and returns plist.
+It replaces element t of the list value on KEYWORD in PLIST
+to the value on `:name'."
+  (declare (indent defun))
+  `(defun ,name (plist)
+     ,(or docstring
+          (format "Filter for `mic'.
+It return PLIST but element t of the list value on %s
+is replaced to the value on `:name'."
+                  keyword))
+     (mic-plist-put
+      plist
+      ,keyword
+      (mapcar
+       (lambda (arg)
+         (if (eq arg t)
+             (plist-get plist :name)
+           arg))
+       (plist-get plist ,keyword)))))
+
+;;;###autoload
 (defmacro mic-deffilter-validate (name &optional docstring &rest keywords)
   "Define filter function named NAME with document DOCSTRING.
 The filter recieves PLIST and return PLIST.
