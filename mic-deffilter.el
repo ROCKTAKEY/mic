@@ -110,9 +110,12 @@ KEYWORDS is a list of valid properties."
   (unless (stringp docstring)
     (push docstring keywords)
     (setq docstring nil))
-  `(defun ,name (plist)
-     ,(or docstring
-          (format "Filter for `mic'.
+  (let ((result (make-symbol "result"))
+        (key (make-symbol "key"))
+        (value (make-symbol "value")))
+    `(defun ,name (plist)
+       ,(or docstring
+            (format "Filter for `mic'.
 It validates PLIST properties and warn if PLIST has invalid properties.
 The valid properties are:
 %s" (mapconcat
@@ -120,15 +123,15 @@ The valid properties are:
        (concat "`" (symbol-name arg) "'"))
      keywords
      "\n")))
-     (let (result)
-       (while plist
-         (let ((key (pop plist))
-               (value (pop plist)))
-           (if (not (memq key (append ',keywords '(:name))))
-               (warn "`mic' %s: The keyword %s is not allowed by filter `%s'" (plist-get plist :name) key ',name)
-             (push key result)
-             (push value result))))
-       (nreverse result))))
+       (let (,result)
+         (while plist
+           (let ((,key (pop plist))
+                 (,value (pop plist)))
+             (if (not (memq ,key (append ',keywords '(:name))))
+                 (warn "`mic' %s: The keyword %s is not allowed by filter `%s'" (plist-get plist :name) ,key ',name)
+               (push ,key ,result)
+               (push ,value ,result))))
+         (nreverse ,result)))))
 
 (provide 'mic-deffilter)
 ;;; mic-deffilter.el ends here
