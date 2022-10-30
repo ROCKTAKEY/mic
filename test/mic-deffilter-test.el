@@ -37,20 +37,6 @@
 
 (require 'mic-deffilter)
 
-(defmacro mic-ert-macroexpand-1 (name &rest args)
-  "Define test named NAME.
-The test compare macro expandation of `car' of each element of ARGS with `cdr' of it.
-The test defined by this expands macro once."
-  (declare (indent defun))
-  `(ert-deftest ,name ()
-     ,@(mapcar
-        (lambda (arg)
-          `(should (equal (macroexpand-1 ',(car arg))
-                          ',(cdr arg))))
-        args)))
-
-
-
 (ert-deftest mic-deffilter-const ()
   (mic-deffilter-const mic-test-mic-deffilter-const
     :foo t
