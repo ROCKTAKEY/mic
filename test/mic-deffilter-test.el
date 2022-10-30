@@ -37,29 +37,29 @@
 
 (require 'mic-deffilter)
 
-(ert-deftest mic-deffilter-const ()
-  (mic-deffilter-const mic-test-mic-deffilter-const
-    :foo t
-    :bar '(2 4))
+(mic-deffilter-const mic-test-mic-deffilter-const
+  :foo t
+  :bar '(2 4))
 
+(ert-deftest mic-deffilter-const ()
   (let* ((init '(:foo 1 :bar 2))
          (result (mic-test-mic-deffilter-const init)))
     (should (equal (plist-get result :foo) t))
     (should (equal (plist-get result :bar) '(2 4)))))
 
-(ert-deftest mic-deffilter-const-append ()
-  (mic-deffilter-const-append mic-test-mic-deffilter-const-append
-    :foo '(t)
-    :bar '(3 4))
+(mic-deffilter-const-append mic-test-mic-deffilter-const-append
+  :foo '(t)
+  :bar '(3 4))
 
+(ert-deftest mic-deffilter-const-append ()
   (let* ((init '(:foo (1) :bar (2)))
          (result (mic-test-mic-deffilter-const-append init)))
     (should (equal (plist-get result :foo) '(1 t)))
     (should (equal (plist-get result :bar) '(2 3 4)))))
 
-(ert-deftest mic-deffilter-nonlist-to-list ()
-  (mic-deffilter-nonlist-to-list mic-test-mic-deffilter-nonlist-to-list :foo)
+(mic-deffilter-nonlist-to-list mic-test-mic-deffilter-nonlist-to-list :foo)
 
+(ert-deftest mic-deffilter-nonlist-to-list ()
   (let* ((init '(:foo (1 t x) :bar (4)))
          (result (mic-test-mic-deffilter-nonlist-to-list init)))
     (should (equal (plist-get result :foo) '(1 t x)))
@@ -70,18 +70,18 @@
     (should (equal (plist-get result :foo) '(a)))
     (should (equal (plist-get result :bar) '(4)))))
 
-(ert-deftest mic-deffilter-t-to-name ()
-  (mic-deffilter-t-to-name mic-test-mic-deffilter-t-to-name :foo)
+(mic-deffilter-t-to-name mic-test-mic-deffilter-t-to-name :foo)
 
+(ert-deftest mic-deffilter-t-to-name ()
   (let* ((init '(:name name :foo (1 t x) :bar (4)))
          (result (mic-test-mic-deffilter-t-to-name init)))
     (should (equal (plist-get result :foo) '(1 name x)))
     (should (equal (plist-get result :bar) '(4)))))
 
-(ert-deftest mic-deffilter-validate ()
-  (mic-deffilter-validate mic-test-mic-deffilter-validate
-    :foo :bar)
+(mic-deffilter-validate mic-test-mic-deffilter-validate
+  :foo :bar)
 
+(ert-deftest mic-deffilter-validate ()
   (let* ((init '(:foo t :bar 2))
          (result (mic-test-mic-deffilter-validate init)))
     (should (equal (plist-get result :foo) t))
