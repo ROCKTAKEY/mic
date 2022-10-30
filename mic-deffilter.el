@@ -57,6 +57,27 @@ It return PLIST but each value on some property below is appended:
      plist))
 
 ;;;###autoload
+(defmacro mic-deffilter-nonlist-to-list (name keyword &optional docstring)
+  "Define filter function named NAME with document DOCSTRING.
+The filter recieves plist and returns plist.
+If the value on KEYWORD in PLIST is not list NON-LIST,
+replace it with `(NON-LIST)'."
+  (declare (indent defun))
+  (let ((value (make-symbol "value")))
+    `(defun ,name (plist)
+       ,(or docstring
+            (format "Filter for `mic'.
+If the value on %s in PLIST is symbol SYMBOL, replace to '(SYMBOL)."
+                    keyword))
+       (let ((,value (plist-get plist ,keyword)))
+         (unless (listp ,value)
+           (mic-plist-put
+            plist
+            ,keyword
+            (list ,value)))
+         plist))))
+
+;;;###autoload
 (defmacro mic-deffilter-t-to-name (name keyword &optional docstring)
   "Define filter function named NAME with document DOCSTRING.
 The filter recieves plist and returns plist.

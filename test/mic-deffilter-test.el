@@ -71,6 +71,19 @@ The test defined by this expands macro once."
     (should (equal (plist-get result :foo) '(1 t)))
     (should (equal (plist-get result :bar) '(2 3 4)))))
 
+(ert-deftest mic-deffilter-nonlist-to-list ()
+  (mic-deffilter-nonlist-to-list mic-test-mic-deffilter-nonlist-to-list :foo)
+
+  (let* ((init '(:foo (1 t x) :bar (4)))
+         (result (mic-test-mic-deffilter-nonlist-to-list init)))
+    (should (equal (plist-get result :foo) '(1 t x)))
+    (should (equal (plist-get result :bar) '(4))))
+
+  (let* ((init '(:foo a :bar (4)))
+         (result (mic-test-mic-deffilter-nonlist-to-list init)))
+    (should (equal (plist-get result :foo) '(a)))
+    (should (equal (plist-get result :bar) '(4)))))
+
 (ert-deftest mic-deffilter-t-to-name ()
   (mic-deffilter-t-to-name mic-test-mic-deffilter-t-to-name :foo)
 
