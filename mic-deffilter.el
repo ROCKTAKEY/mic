@@ -57,6 +57,19 @@ It return PLIST but each value on some property below is appended:
      plist))
 
 ;;;###autoload
+(defmacro mic-deffilter-ignore (name keyword &optional docstring)
+  "Define filter function named NAME with document DOCSTRING.
+The filter recieves plist and returns plist.
+If the value on KEYWORD in PLIST exists, remove it."
+  (declare (indent defun))
+  `(defun ,name (plist)
+     ,(or docstring
+          (format "Filter for `mic'.
+If the value on %s in PLIST exists, remove it."
+                  keyword))
+     (map-delete plist ,keyword)))
+
+;;;###autoload
 (defmacro mic-deffilter-nonlist-to-list (name keyword &optional docstring)
   "Define filter function named NAME with document DOCSTRING.
 The filter recieves plist and returns plist.
