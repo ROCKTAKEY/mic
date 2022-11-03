@@ -37,6 +37,16 @@
 
 (require 'mic-deffilter)
 
+(mic-deffilter-alias mic-test-mic-deffilter-alias
+  :foo :baz)
+
+(ert-deftest mic-deffilter-alias ()
+  (let* ((init '(:foo 1 :bar 2))
+         (result (mic-test-mic-deffilter-alias init)))
+    (should (equal (plist-get result :foo) nil))
+    (should (equal (plist-get result :baz) 1))
+    (should (equal (plist-get result :bar) 2))))
+
 (mic-deffilter-const mic-test-mic-deffilter-const
   :foo t
   :bar '(2 4))

@@ -14,6 +14,30 @@
 (require 'mic-utils)
 
 ;;;###autoload
+(defmacro mic-deffilter-alias (name  alias target &optional docstring)
+  "Define filter function named NAME with document DOCSTRING.
+The filter recieves plist and returns plist.
+It make alias named ALIAS to TARGET."
+  (declare (indent defun))
+  (let ((key (make-symbol "key"))
+        (value (make-symbol "value"))
+        (result (make-symbol "result")))
+   `(defun ,name (plist)
+     ,(or docstring
+          (format "Filter for `mic'.
+It return PLIST but value on %s is replaced with %s."
+                  alias target))
+     (let (,result)
+       (while plist
+         (let ((,key (pop plist))
+               (,value (pop plist)))
+           (when (eq ,key ,alias)
+             (setq ,key ,target))
+           (push ,key ,result)
+           (push ,value ,result)))
+       (nreverse ,result)))))
+
+;;;###autoload
 (defmacro mic-deffilter-const (name &optional docstring &rest plist)
   "Define filter function named NAME with document DOCSTRING.
 The filter recieves plist and returns plist.
