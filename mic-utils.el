@@ -16,16 +16,18 @@
 (defmacro mic-plist-put (plist prop val)
   "Same as `plist-put', but fine when PLIST is nil.
 Change value in PLIST of PROP to VAL."
-  `(if ,plist
-       (plist-put ,plist ,prop ,val)
-     (setq ,plist (list ,prop ,val))))
+  `(setq ,plist
+         (if ,plist
+             (plist-put ,plist ,prop ,val)
+           (list ,prop ,val))))
 
 ;;;###autoload
 (defmacro mic-plist-put-append (plist prop val)
   "Append VAL to value in PLIST of PROP."
-  `(if ,plist
-       (plist-put ,plist ,prop (append (plist-get ,plist ,prop) ,val))
-     (setq ,plist (list ,prop (append (plist-get ,plist ,prop) ,val)))))
+  `(setq ,plist
+         (if ,plist
+             (plist-put ,plist ,prop (append (plist-get ,plist ,prop) ,val))
+           (list ,prop (append (plist-get ,plist ,prop) ,val)))))
 
 ;;;###autoload
 (defmacro mic-plist-delete (plist &rest props)
