@@ -63,7 +63,11 @@
 (ert-deftest mic-deffilter-ignore ()
   (let* ((init '(:foo (1) :bar (2)))
          (result (mic-test-mic-deffilter-ignore init)))
-    (should (equal init '(:foo (1) :bar (2))))))
+    (should (equal result '(:bar (2)))))
+
+  (let* ((init '(:bar (2) :foo (1)))
+         (result (mic-test-mic-deffilter-ignore init)))
+    (should (equal result '(:bar (2))))))
 
 (mic-deffilter-nonlist-to-list mic-test-mic-deffilter-nonlist-to-list :foo)
 

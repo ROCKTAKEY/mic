@@ -10,6 +10,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (require 'mic-utils)
 
 ;;;###autoload
@@ -67,7 +68,8 @@ If the value on KEYWORD in PLIST exists, remove it."
           (format "Filter for `mic'.
 If the value on %s in PLIST exists, remove it."
                   keyword))
-     (map-delete plist ,keyword)))
+     (cl-remf plist ,keyword)
+     plist))
 
 ;;;###autoload
 (defmacro mic-deffilter-nonlist-to-list (name keyword &optional docstring)
