@@ -36,6 +36,17 @@
 
 (require 'mic-filter)
 
+(ert-deftest mic-filter-hook-quote ()
+  (should (equal
+           (mic-filter-hook-quote
+            '(:hook ((after-init-hook . func1)
+                     (switch-buffer-hook . (lambda () 1)))))
+           '(:eval
+             ((add-hook 'after-init-hook #'func1)
+              (add-hook 'switch-buffer-hook #'(lambda nil 1)))))))
+
+
+
 (ert-deftest mic-filter-straight ()
   (should (equal (mic-filter-straight '(:straight (x y (emacs-ja
                                                         :host github
