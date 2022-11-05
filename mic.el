@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.21.1
+;; Version: 0.21.2
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -727,7 +727,7 @@ Each element of LIST is interactive function which should be autoloaded,
 and NAME is feature."
   (mapcar
    (lambda (arg)
-     `(autoload #',arg ,(symbol-name name) nil t))
+     `(autoload ',arg ,(symbol-name name) nil t))
    list))
 
 (defun mic-filter-autoload-interactive (plist)
@@ -746,7 +746,7 @@ Each element of LIST is non-interactive function which should be autoloaded,
 and NAME is feature."
   (mapcar
    (lambda (arg)
-     `(autoload #',arg ,(symbol-name name)))
+     `(autoload ',arg ,(symbol-name name)))
    list))
 
 (defun mic-filter-autoload-noninteractive (plist)

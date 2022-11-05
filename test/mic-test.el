@@ -65,8 +65,8 @@ The test defined by this expands macro twice."
      (find-file
       write-file))
    . (prog1 'feature-name
-       (autoload #'find-file "feature-name" nil t)
-       (autoload #'write-file "feature-name" nil t))))
+       (autoload 'find-file "feature-name" nil t)
+       (autoload 'write-file "feature-name" nil t))))
 
 (mic-ert-macroexpand-2 mic-autoload-noninteractive
   ((mic feature-name
@@ -74,8 +74,8 @@ The test defined by this expands macro twice."
      (cl-map
       cl-mapcar))
    . (prog1 'feature-name
-       (autoload #'cl-map "feature-name")
-       (autoload #'cl-mapcar "feature-name"))))
+       (autoload 'cl-map "feature-name")
+       (autoload 'cl-mapcar "feature-name"))))
 
 (mic-ert-macroexpand-2 mic-custom
   ((mic feature-name
