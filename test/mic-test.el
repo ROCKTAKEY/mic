@@ -296,6 +296,31 @@ The test defined by this expands macro twice."
              (error
               (warn "Package %s is not found" 'package-2))))))))
 
+(mic-ert-macroexpand-2 mic-require
+  ((mic feature-name
+     :require
+     (feat1
+      feat2))
+   . (prog1 'feature-name
+       (require 'feat1)
+       (require 'feat2))))
+
+(mic-ert-macroexpand-2 mic-require-after
+  ((mic feature-name
+     :require-after
+     ((feat-after1
+       . (feat1  feat2))
+      (feat-after2
+       feat3
+       feat4)))
+   . (prog1 'feature-name
+       (with-eval-after-load 'feat-after1
+         (require 'feat1)
+         (require 'feat2))
+       (with-eval-after-load 'feat-after2
+         (require 'feat3)
+         (require 'feat4)))))
+
 
 
 (mic-ert-macroexpand-1 mic-apply-filter

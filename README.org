@@ -357,6 +357,8 @@ In addition to keywords allowed by [[mic-core][=mic-core=]], it allows some keyw
 - =:face=
 - =:hook=
 - =:package=
+- =:require=
+- =:require-after=
 
 ** =:autoload-interactive=, =:autoload-noninteractive=
 
@@ -656,6 +658,69 @@ The expandation result is complicated, because it is annoying to fetch package a
             (package-install 'package-name2)
           (error
            (warn "Package %s is not found" 'package-name2))))))
+#+end_src
+
+** =:require=
+This is transformed to =require= sexps.
+Each element is feature symbol and required on =:eval=.
+
+#+begin_src emacs-lisp :tangle yes
+  (mic feature-name
+    :require
+    (feat1
+     feat2))
+
+  ;; Expand to:
+  (mic-core feature-name
+    :eval-installation nil
+    :eval
+    ((require 'feat1)
+     (require 'feat2))
+    :eval-after-load nil)
+
+  ;; Expand to:
+  (prog1 'feature-name
+    (require 'feat1)
+    (require 'feat2))
+#+end_src
+
+** =:require-after=
+This is transformed to =require= sexps in =with-eval-after-load= section.
+Each element is alist. =car= of each element is feature symbol which is
+used as first argument of =with-eval-after-load=.
+=cdr= of each element is list of features required after the =car=.
+
+This is used when you should require package after another one but
+there is no functions to call so =autoload= cannot be used.
+
+#+begin_src emacs-lisp :tangle yes
+  (mic dired-filter
+    ;; `dired-filter-map' should be available when `dired' is required,
+    ;; but there is no function to call when it is required.
+    :define-key-with-feature
+    ((dired
+      (dired-mode-map
+       ("/" . dired-filter-map))))
+    ;; So just require `dired-filter' after `dired'
+    :require-after
+    ((dired . (dired-filter))))
+
+  ;; Expand to:
+  (mic-core dired-filter
+    :eval-installation nil
+    :eval
+    ((with-eval-after-load 'dired
+       (define-key dired-mode-map (kbd "/") dired-filter-map))
+     (with-eval-after-load 'dired
+       (require 'dired-filter)))
+    :eval-after-load nil)
+
+  ;; Expand to:
+  (prog1 'dired-filter
+    (with-eval-after-load 'dired
+      (define-key dired-mode-map (kbd "/") dired-filter-map))
+    (with-eval-after-load 'dired
+      (require 'dired-filter)))
 #+end_src
 
 * Define your own =mic=
