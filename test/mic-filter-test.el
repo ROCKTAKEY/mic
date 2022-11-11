@@ -115,5 +115,12 @@
                       ("<left>" shrink-window-horizontally)
                       ("q" nil "quit")))))))
 
+(ert-deftest mic-filter-mykie ()
+  (should (equal (mic-filter-mykie
+                  '(:mykie ((global-map ("C-w" :default hydra-window-resizer/body :region kill-region)))))
+                 '(:eval ((mykie:define-key global-map "C-w"
+                            :default hydra-window-resizer/body
+                            :region kill-region))))))
+
 (provide 'mic-filter-test)
 ;;; mic-filter-test.el ends here

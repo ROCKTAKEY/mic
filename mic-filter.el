@@ -68,5 +68,23 @@ This filter use `:hydra' keyword."
     (plist-get plist :hydra)))
   (mic-plist-delete plist :hydra))
 
+(defun mic-filter-mykie (plist)
+  "Create `mykie:define-key' sexp from PLIST and append to value of `:eval'.
+This filter use `:mykie' keyword."
+  (mic-plist-put-append
+   plist :eval
+   (cl-mapcan
+    (lambda (keymap-binds-alist)
+      (let ((keymap (car keymap-binds-alist))
+            (binds (cdr keymap-binds-alist)))
+        (mapcar
+         (lambda (bind)
+           (let ((key (car bind))
+                 (args (cdr bind)))
+             `(mykie:define-key ,keymap ,key ,@args)))
+         binds)))
+    (plist-get plist :mykie)))
+  (mic-plist-delete plist :mykie))
+
 (provide 'mic-filter)
 ;;; mic-filter.el ends here
