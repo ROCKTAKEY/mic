@@ -694,33 +694,34 @@ This is used when you should require package after another one but
 there is no functions to call so =autoload= cannot be used.
 
 #+begin_src emacs-lisp :tangle yes
-  (mic dired-filter
-    ;; `dired-filter-map' should be available when `dired' is required,
-    ;; but there is no function to call when it is required.
-    :define-key-with-feature
-    ((dired
-      (dired-mode-map
-       ("/" . dired-filter-map))))
-    ;; So just require `dired-filter' after `dired'
+  (mic feature-name
     :require-after
-    ((dired . (dired-filter))))
+    ((feat-after1
+      . (feat1  feat2))
+     (feat-after2
+      feat3
+      feat4)))
 
   ;; Expand to:
-  (mic-core dired-filter
+  (mic-core feature-name
     :eval-installation nil
     :eval
-    ((with-eval-after-load 'dired
-       (define-key dired-mode-map (kbd "/") dired-filter-map))
-     (with-eval-after-load 'dired
-       (require 'dired-filter)))
+    ((with-eval-after-load 'feat-after1
+       (require 'feat1)
+       (require 'feat2))
+     (with-eval-after-load 'feat-after2
+       (require 'feat3)
+       (require 'feat4)))
     :eval-after-load nil)
 
   ;; Expand to:
-  (prog1 'dired-filter
-    (with-eval-after-load 'dired
-      (define-key dired-mode-map (kbd "/") dired-filter-map))
-    (with-eval-after-load 'dired
-      (require 'dired-filter)))
+  (prog1 'feature-name
+    (with-eval-after-load 'feat-after1
+      (require 'feat1)
+      (require 'feat2))
+    (with-eval-after-load 'feat-after2
+      (require 'feat3)
+      (require 'feat4)))
 #+end_src
 
 * Define your own =mic=
