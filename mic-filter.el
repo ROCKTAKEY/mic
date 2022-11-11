@@ -55,5 +55,18 @@ This filter use `:straight' keyword."
     (plist-get plist :straight)))
   (mic-plist-delete plist :straight))
 
+
+
+(defun mic-filter-hydra (plist)
+  "Create `defhydra' sexp from PLIST and append to value of `:eval'.
+This filter use `:hydra' keyword."
+  (mic-plist-put-append
+   plist :eval
+   (mapcar
+    (lambda (arg)
+      `(defhydra ,@arg))
+    (plist-get plist :hydra)))
+  (mic-plist-delete plist :hydra))
+
 (provide 'mic-filter)
 ;;; mic-filter.el ends here

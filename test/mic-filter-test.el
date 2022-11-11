@@ -86,5 +86,34 @@
                          :foo)
               'bar)))
 
+(ert-deftest mic-filter-hydra ()
+  (should (equal (mic-filter-hydra
+                  '(:hydra ((hydra-window-resizer
+                             nil
+                             ("p" shrink-window "shrink")
+                             ("n" enlarge-window "enlarge")
+                             ("f" enlarge-window-horizontally "enlarge-horizontally")
+                             ("b" shrink-window-horizontally "shrink-horizontally")
+                             ;; ("k" shrink-window)
+                             ;; ("j" enlarge-window)
+                             ;; ("l" enlarge-window-horizontally)
+                             ;; ("h" shrink-window-horizontally)
+                             ("<down>" shrink-window)
+                             ("<up>" enlarge-window)
+                             ("<right>" enlarge-window-horizontally)
+                             ("<left>" shrink-window-horizontally)
+                             ("q" nil "quit")))))
+                 '(:eval
+                   ((defhydra hydra-window-resizer nil
+                      ("p" shrink-window "shrink")
+                      ("n" enlarge-window "enlarge")
+                      ("f" enlarge-window-horizontally "enlarge-horizontally")
+                      ("b" shrink-window-horizontally "shrink-horizontally")
+                      ("<down>" shrink-window)
+                      ("<up>" enlarge-window)
+                      ("<right>" enlarge-window-horizontally)
+                      ("<left>" shrink-window-horizontally)
+                      ("q" nil "quit")))))))
+
 (provide 'mic-filter-test)
 ;;; mic-filter-test.el ends here
