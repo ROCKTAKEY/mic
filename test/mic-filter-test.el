@@ -88,6 +88,46 @@
 
 
 
+(ert-deftest mic-filter-define-key-general ()
+  (should (equal (mic-filter-define-key-general
+                  '(:define-key-general
+                    ((keymap1
+                      ("C-d" . #'func1)
+                      ("C-q" . #'func2))
+                     (override
+                      ("C-a" . #'func3)
+                      ("C-e" . #'func4)))))
+                 '(:eval
+                   ((general-define-key
+                     :keymaps 'keymap1
+                     "C-d" #'func1
+                     "C-q" #'func2)
+                    (general-define-key
+                     :keymaps 'override
+                     "C-a" #'func3
+                     "C-e" #'func4))))))
+
+(ert-deftest mic-filter-general-define-key ()
+  (should (equal (mic-filter-general-define-key
+                  '(:general-define-key
+                    (( :keymaps 'keymap1
+                       "C-d"  #'func1
+                       "C-q"  #'func2)
+                     ( :keymaps 'override
+                       "C-a" #'func3
+                       "C-e" #'func4))))
+                 '(:eval
+                   ((general-define-key
+                     :keymaps 'keymap1
+                     "C-d" #'func1
+                     "C-q" #'func2)
+                    (general-define-key
+                     :keymaps 'override
+                     "C-a" #'func3
+                     "C-e" #'func4))))))
+
+
+
 (ert-deftest mic-filter-hydra ()
   (should (equal (mic-filter-hydra
                   '(:hydra ((hydra-window-resizer
