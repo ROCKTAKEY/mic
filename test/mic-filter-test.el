@@ -86,6 +86,8 @@
                          :foo)
               'bar)))
 
+
+
 (ert-deftest mic-filter-hydra ()
   (should (equal (mic-filter-hydra
                   '(:hydra ((hydra-window-resizer
