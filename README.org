@@ -222,7 +222,7 @@ Time to evaluate is different.
 Each element of these arguments are evaluated when the =mic= sexp is evaluated.
 The order is:
 - =:eval-before-all=
-- (=with-eval-after-load= sexp, explained on [[eval-after-load][=eval-after-load= keyword section]], is evaluated)
+- (=with-eval-after-load= sexp, explained on [[#eval-after-load][=eval-after-load= keyword section]], is evaluated)
 - =:eval=
 - =:eval-after-others=
 
@@ -344,7 +344,7 @@ by filters*.
 
 * Use default =mic=
 =mic= is minimal for use. =mic-core= is minimum core, but it is not enough to use as it is.
-In addition to keywords allowed by [[mic-core][=mic-core=]], it allows some keyword arguments:
+In addition to keywords allowed by [[#mic-core][=mic-core=]], it allows some keyword arguments:
 - =:autoload-interactive=
 - =:autoload-noninteractive=
 - =:custom=
