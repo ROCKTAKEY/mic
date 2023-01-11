@@ -155,5 +155,16 @@ This filter use `:pretty-hydra' keyword."
     (plist-get plist :pretty-hydra)))
   (mic-plist-delete plist :pretty-hydra))
 
+(defun mic-filter-pretty-hydra+ (plist)
+  "Create `pretty-hydra-define+' sexp from PLIST and append to value of `:eval'.
+This filter use `:pretty-hydra+' keyword."
+  (mic-plist-put-append
+   plist :eval
+   (mapcar
+    (lambda (arg)
+      `(pretty-hydra-define+ ,@arg))
+    (plist-get plist :pretty-hydra+)))
+  (mic-plist-delete plist :pretty-hydra+))
+
 (provide 'mic-filter)
 ;;; mic-filter.el ends here

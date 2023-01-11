@@ -223,6 +223,37 @@
                        "Quit"
                        ("q" nil "quit"))))))))
 
+(ert-deftest mic-filter-pretty-hydra+ ()
+  (should (equal (mic-filter-pretty-hydra+
+                  '(:pretty-hydra+
+                    ((hydra-window-resizer
+                      nil
+                      ("Alphabet"
+                       (("p" shrink-window "shrink")
+                        ("n" enlarge-window "enlarge")
+                        ("f" enlarge-window-horizontally "enlarge-horizontally")
+                        ("b" shrink-window-horizontally "shrink-horizontally"))
+                       "Arrow"
+                       (("<down>" shrink-window)
+                        ("<up>" enlarge-window)
+                        ("<right>" enlarge-window-horizontally)
+                        ("<left>" shrink-window-horizontally))
+                       "Quit"
+                       ("q" nil "quit"))))))
+                 '(:eval
+                   ((pretty-hydra-define+ hydra-window-resizer nil
+                      ("Alphabet"
+                       (("p" shrink-window "shrink")
+                        ("n" enlarge-window "enlarge")
+                        ("f" enlarge-window-horizontally "enlarge-horizontally")
+                        ("b" shrink-window-horizontally "shrink-horizontally"))
+                       "Arrow"
+                       (("<down>" shrink-window)
+                        ("<up>" enlarge-window)
+                        ("<right>" enlarge-window-horizontally)
+                        ("<left>" shrink-window-horizontally))
+                       "Quit"
+                       ("q" nil "quit"))))))))
 
 (provide 'mic-filter-test)
 ;;; mic-filter-test.el ends here
