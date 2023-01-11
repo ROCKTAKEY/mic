@@ -196,26 +196,32 @@
                   '(:pretty-hydra
                     ((hydra-window-resizer
                       nil
-                      ("p" shrink-window "shrink")
-                      ("n" enlarge-window "enlarge")
-                      ("f" enlarge-window-horizontally "enlarge-horizontally")
-                      ("b" shrink-window-horizontally "shrink-horizontally")
-                      ("<down>" shrink-window)
-                      ("<up>" enlarge-window)
-                      ("<right>" enlarge-window-horizontally)
-                      ("<left>" shrink-window-horizontally)
-                      ("q" nil "quit")))))
+                      ("Alphabet"
+                       (("p" shrink-window "shrink")
+                        ("n" enlarge-window "enlarge")
+                        ("f" enlarge-window-horizontally "enlarge-horizontally")
+                        ("b" shrink-window-horizontally "shrink-horizontally"))
+                       "Arrow"
+                       (("<down>" shrink-window)
+                        ("<up>" enlarge-window)
+                        ("<right>" enlarge-window-horizontally)
+                        ("<left>" shrink-window-horizontally))
+                       "Quit"
+                       ("q" nil "quit"))))))
                  '(:eval
                    ((pretty-hydra-define hydra-window-resizer nil
-                      ("p" shrink-window "shrink")
-                      ("n" enlarge-window "enlarge")
-                      ("f" enlarge-window-horizontally "enlarge-horizontally")
-                      ("b" shrink-window-horizontally "shrink-horizontally")
-                      ("<down>" shrink-window)
-                      ("<up>" enlarge-window)
-                      ("<right>" enlarge-window-horizontally)
-                      ("<left>" shrink-window-horizontally)
-                      ("q" nil "quit")))))))
+                      ("Alphabet"
+                       (("p" shrink-window "shrink")
+                        ("n" enlarge-window "enlarge")
+                        ("f" enlarge-window-horizontally "enlarge-horizontally")
+                        ("b" shrink-window-horizontally "shrink-horizontally"))
+                       "Arrow"
+                       (("<down>" shrink-window)
+                        ("<up>" enlarge-window)
+                        ("<right>" enlarge-window-horizontally)
+                        ("<left>" shrink-window-horizontally))
+                       "Quit"
+                       ("q" nil "quit"))))))))
 
 
 (provide 'mic-filter-test)
