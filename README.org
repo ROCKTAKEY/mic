@@ -1,7 +1,7 @@
 [[https://github.com/ROCKTAKEY/mic][https://img.shields.io/github/tag/ROCKTAKEY/mic.svg?style=flat-square]]
 [[file:LICENSE][https://img.shields.io/github/license/ROCKTAKEY/mic.svg?style=flat-square]]
 [[https://codecov.io/gh/ROCKTAKEY/mic?branch=master][https://img.shields.io/codecov/c/github/ROCKTAKEY/mic.svg?style=flat-square]]
-[[https://github.com/ROCKTAKEY/mic/actions][https://img.shields.io/github/workflow/status/ROCKTAKEY/mic/test/master.svg?style=flat-square]]
+[[https://github.com/ROCKTAKEY/mic/actions][https://img.shields.io/github/actions/workflow/status/ROCKTAKEY/mic/test.yml.svg?branch=master&style=flat-square]]
 * mic: Minimal configuration manager for Emacs
 #+BEGIN_QUOTE
 =mic= is uncustomizable. Define your own =mic=.
