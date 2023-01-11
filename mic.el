@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.28.0
+;; Version: 0.28.1
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -56,7 +56,7 @@
 ;; [https://img.shields.io/github/tag/ROCKTAKEY/mic.svg?style=flat-square]
 ;; [https://img.shields.io/github/license/ROCKTAKEY/mic.svg?style=flat-square]
 ;; [https://img.shields.io/codecov/c/github/ROCKTAKEY/mic.svg?style=flat-square]
-;; [https://img.shields.io/github/workflow/status/ROCKTAKEY/mic/test/master.svg?style=flat-square]
+;; [https://img.shields.io/github/actions/workflow/status/ROCKTAKEY/mic/test.yml.svg?branch=master&style=flat-square]
 
 
 ;; [https://img.shields.io/github/tag/ROCKTAKEY/mic.svg?style=flat-square]
@@ -68,22 +68,22 @@
 ;; [https://img.shields.io/codecov/c/github/ROCKTAKEY/mic.svg?style=flat-square]
 ;; <https://codecov.io/gh/ROCKTAKEY/mic?branch=master>
 
-;; [https://img.shields.io/github/workflow/status/ROCKTAKEY/mic/test/master.svg?style=flat-square]
+;; [https://img.shields.io/github/actions/workflow/status/ROCKTAKEY/mic/test.yml.svg?branch=master&style=flat-square]
 ;; <https://github.com/ROCKTAKEY/mic/actions>
 
 
 ;; 1 mic: Minimal configuration manager for Emacs
 ;; ==============================================
 
-;;         `mic' is uncustomizable. Define your own `mic'.
+;;         `mic' is uncustomizable.  Define your own `mic'.
 
 ;;   `mic' is minimal configuration manager for Emacs.  This package is yet
 ;;   another `use-package' and `leaf', but is also used with them (See
 ;;   [Alternative]).  `mic' is minimal, so if you would like to write
-;;   complex configuration, `mic' is a little redundant. However, there is
-;;   no problem. `mic' is thought to be used to core to define your own,
+;;   complex configuration, `mic' is a little redundant.  However, there is
+;;   no problem.  `mic' is thought to be used to core to define your own,
 ;;   another, more convenient `mic'.  There are some functions to define
-;;   your own `mic'. See [Define your own mic].
+;;   your own `mic'.  See [Define your own mic].
 
 
 ;; [Alternative] See section 6
@@ -116,12 +116,12 @@
 ;;   |
 ;;   |   ;; These are transformed to `with-eval-after-load' and `define-key' sexp.
 ;;   |   ;; Each argument is `(FEATURE (KEYMAP (KEYS . COMMAND)...))'.
-;;   |   ;; `cdr' is same as `:define-key' arguments. Each `define-key' sexp is
+;;   |   ;; `cdr' is same as `:define-key' arguments.  Each `define-key' sexp is
 ;;   |   ;; evaluated after FEATURE is loaded.
 ;;   |   ;; This is needed because `dired-mode-map' is unavailable before `dired'
 ;;   |   ;; loading.
 ;;   |   :define-key-with-feature
-;;   |   ((dired
+;;   |   ((`dired'
 ;;   |     (dired-mode-map
 ;;   |      ("M-q" . #'lsp-dired-mode))))
 ;;   |
@@ -188,7 +188,7 @@
 ;;   |   (define-key global-map (kbd "M-l") #'lsp)
 ;;   |
 ;;   |   ;; `:define-key-with-feature'
-;;   |   (with-eval-after-load 'dired
+;;   |   (with-eval-after-load '`dired'
 ;;   |     (define-key dired-mode-map (kbd "M-q") #'lsp-dired-mode))
 ;;   |
 ;;   |   ;; `:hook'
@@ -203,20 +203,20 @@
 ;;   For Emacs Lisp expert, original `mic' is a little unsatisfactory or
 ;;   redundant.  `mic' is not customizable, but you can define your own
 ;;   `mic' easily.
-;;   1. Determine parent. You can use as parent `mic', `mic-core', which is
+;;   1. Determine parent.  You can use as parent `mic', `mic-core', which is
 ;;      simpler `mic'.  `mic-core' recieves only keywords start from
 ;;      `:eval', such as `:eval', `eval-after-load'.
-;;   2. Define filter functions. Each one recieves plist (property list)
+;;   2. Define filter functions.  Each one recieves plist (property list)
 ;;      and returns plist.  returned plist is passed to parent (such as
 ;;      `mic', `mic-core') or next filter.  Note that filter function can
 ;;      get feature name as value of property `:name'.  Of course, you can
-;;      use pre-defined filters. `mic' is defined by some filters from the
+;;      use pre-defined filters.  `mic' is defined by some filters from the
 ;;      parent `mic-core'.
-;;   3. Define your own mic by `mic-defmic'. It recieves `NAME', optional
-;;      `DOCSTRING', and keyword argument `FILTERS'. `NAME' is name of your
-;;      own `mic'.  `DOCSTRING' is the document string of yours. `FILTERS'
+;;   3. Define your own mic by `mic-defmic'.  It recieves `NAME', optional
+;;      `DOCSTRING', and keyword argument `FILTERS'.  `NAME' is name of your
+;;      own `mic'.  `DOCSTRING' is the document string of yours.  `FILTERS'
 ;;      are list of filter.  As explained, filter recieves plist and
-;;      returns plist. It filter plist to get desired behavior.
+;;      returns plist.  It filter plist to get desired behavior.
 
 ;;   ,----
 ;;   | (defun my-filter-global-set-key-without-quote (plist)
@@ -240,7 +240,7 @@
 ;;   |     plist))
 ;;   |
 ;;   | (mic-defmic mymic
-;;   |   ;; Parent is here. You can also use `mic-core'.
+;;   |   ;; Parent is here.  You can also use `mic-core'.
 ;;   |   mic
 ;;   |   :filters
 ;;   |   '(my-filter-global-set-key-without-quote
@@ -291,7 +291,7 @@
 ;; 3 Use `mic-core', minimum one
 ;; =============================
 
-;;   `mic-core' is minimum. It can recieves only 5 keywords:
+;;   `mic-core' is minimum.  It can recieves only 5 keywords:
 ;;   - `:eval'
 ;;   - `:eval-after-load'
 ;;   - `:eval-after-others'
@@ -344,8 +344,8 @@
 ;;   `:eval-before-all' exists because a filter function appends sexp to
 ;;   `:eval' argument.  When some action should be evaluated before all
 ;;   action added by other filters, you can put it to `:eval-before-all'
-;;   argument. *Note that it should NOT be used by filters.* Any filter
-;;   should not use this. If it is used by filters, users cannot make their
+;;   argument.  *Note that it should NOT be used by filters.* Any filter
+;;   should not use this.  If it is used by filters, users cannot make their
 ;;   sexp to be evaluate before filter sexps.
 
 ;;   `:eval-after-others' exists because similar reason to
@@ -439,7 +439,7 @@
 ;; 4 Use default `mic'
 ;; ===================
 
-;;   `mic' is minimal for use. `mic-core' is minimum core, but it is not
+;;   `mic' is minimal for use.  `mic-core' is minimum core, but it is not
 ;;   enough to use as it is.  In addition to keywords allowed by
 ;;   [`mic-core'], it allows some keyword arguments:
 ;;   - `:autoload-interactive'
@@ -463,7 +463,7 @@
 ;; 4.1 `:autoload-interactive', `:autoload-noninteractive'
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-;;   These are transformed to `autoload' sexps. Each element is function to
+;;   These are transformed to `autoload' sexps.  Each element is function to
 ;;   autoload.  Since `autoload' should be informed whether the function is
 ;;   `interactive' or not, both `:autoload-interactive' and
 ;;   `:autoload-noninteractive' exist.
@@ -588,7 +588,7 @@
 
 ;;   These arguments is transformed to `define-key' sexps.  On
 ;;   `:define-key' or `:define-key-after-load', each element of the
-;;   argument is `(KEYMAP (KEYS . COMMAND)...)'. `KEYMAP' is keymap. `KEYS'
+;;   argument is `(KEYMAP (KEYS . COMMAND)...)'.  `KEYMAP' is keymap.  `KEYS'
 ;;   is passed to `kbd'.  `COMMAND' is interactive function.
 
 ;;   On `:define-key-with-feature', each element is `(FEATURE (KEYMAP (KEYS
@@ -815,7 +815,7 @@
 ;; ~~~~~~~~~~~~~~~~~~~~
 
 ;;   This is transformed to `require' sexps in `with-eval-after-load'
-;;   section.  Each element is alist. `car' of each element is feature
+;;   section.  Each element is alist.  `car' of each element is feature
 ;;   symbol which is used as first argument of `with-eval-after-load'.
 ;;   `cdr' of each element is list of features required after the `car'.
 
@@ -857,7 +857,7 @@
 ;; 5 Define your own `mic'
 ;; =======================
 
-;;   You do not like `mic' behavior? It is OK. You can define your own
+;;   You do not like `mic' behavior? It is OK.  You can define your own
 ;;   `mic'!  There are some ways to define it:
 ;;   - Use `mic-defmic'
 ;;   - Use `defmacro'
@@ -919,8 +919,8 @@
 
 ;;   `mic-defmic' recieves arguments: `NAME', `PANRENT', optional
 ;;   `DOCSTRING', keyword argument `FILTERS'.  `NAME' is your new `mic'
-;;   macro name. `PARENT' is parent `mic', which recieves `RETURNED-PLIST'
-;;   at last.  `FILTERS' is list of your filters. When your `mic' recieves
+;;   macro name.  `PARENT' is parent `mic', which recieves `RETURNED-PLIST'
+;;   at last.  `FILTERS' is list of your filters.  When your `mic' recieves
 ;;   plist, the plist is filtered by all of your `FILTERS' in order, then
 ;;   the plist is passed to `PARENT'.
 
@@ -928,7 +928,7 @@
 ;;   ,----
 ;;   | ;; Define `mymic'
 ;;   | (mic-defmic mymic
-;;   |   ;; Parent is here. You can also use `mic-core'.
+;;   |   ;; Parent is here.  You can also use `mic-core'.
 ;;   |   mic
 ;;   |   :filters
 ;;   |   '(my-filter-global-set-key-without-quote
@@ -966,8 +966,8 @@
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ;;   When you read here, you should know `defmacro'.  You can do anything
-;;   with `defmacro'. `mic-defmic' is easy way to define your `mic', but
-;;   may be not enough for you, because of restriction. Then *I RECOMMEND
+;;   with `defmacro'.  `mic-defmic' is easy way to define your `mic', but
+;;   may be not enough for you, because of restriction.  Then *I RECOMMEND
 ;;   to use `defmacro'*.  I am looking forward to seeing your `mic' defined
 ;;   by `defmacro'!
 
@@ -998,7 +998,7 @@
 
 ;;   When you think you would like to share your filter or your own `mic',
 ;;   use GitHub Discussion.  Of course your `mic' defined by
-;;   `defmacro'. Any issue is welcome.
+;;   `defmacro'.  Any issue is welcome.
 
 
 ;; 8 License
