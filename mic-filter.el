@@ -115,6 +115,17 @@ This filter use `:hydra' keyword."
     (plist-get plist :hydra)))
   (mic-plist-delete plist :hydra))
 
+(defun mic-filter-mode-hydra (plist)
+  "Create `major-mode-hydra-define' sexp from PLIST and append to value of `:eval'.
+This filter use `:mode-hydra' keyword."
+  (mic-plist-put-append
+   plist :eval
+   (mapcar
+    (lambda (arg)
+      `(major-mode-hydra-define ,@arg))
+    (plist-get plist :mode-hydra)))
+  (mic-plist-delete plist :mode-hydra))
+
 (defun mic-filter-mykie (plist)
   "Create `mykie:define-key' sexp from PLIST and append to value of `:eval'.
 This filter use `:mykie' keyword."

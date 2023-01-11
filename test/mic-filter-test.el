@@ -157,6 +157,33 @@
                       ("<left>" shrink-window-horizontally)
                       ("q" nil "quit")))))))
 
+(ert-deftest mic-filter-mode-hydra ()
+  (should (equal (mic-filter-mode-hydra
+                  '(:mode-hydra
+                    (( c-mode (:title "C Mode" :quit-key "q")
+                       ("Alphabet"
+                        (("p" shrink-window "shrink")
+                         ("n" enlarge-window "enlarge")
+                         ("f" enlarge-window-horizontally "enlarge-horizontally")
+                         ("b" shrink-window-horizontally "shrink-horizontally"))
+                        "Arrow"
+                        (("<down>" shrink-window)
+                         ("<up>" enlarge-window)
+                         ("<right>" enlarge-window-horizontally)
+                         ("<left>" shrink-window-horizontally)))))))
+                 '(:eval
+                   ((major-mode-hydra-define c-mode (:title "C Mode" :quit-key "q")
+                      ("Alphabet"
+                       (("p" shrink-window "shrink")
+                        ("n" enlarge-window "enlarge")
+                        ("f" enlarge-window-horizontally "enlarge-horizontally")
+                        ("b" shrink-window-horizontally "shrink-horizontally"))
+                       "Arrow"
+                       (("<down>" shrink-window)
+                        ("<up>" enlarge-window)
+                        ("<right>" enlarge-window-horizontally)
+                        ("<left>" shrink-window-horizontally)))))))))
+
 (ert-deftest mic-filter-mykie ()
   (should (equal (mic-filter-mykie
                   '(:mykie ((global-map ("C-w" :default hydra-window-resizer/body :region kill-region)))))
