@@ -46,5 +46,19 @@ Change value in PLIST of PROP to VAL."
              (push ,value ,result))))
        (setq ,plist (nreverse ,result)))))
 
+;;;###autoload
+(defun mic-plist-replace-keywords (plist replacement-alist)
+  "Replace each keyword in PLIST.
+Each element of REPLACEMENT-ALIST is (FROM . TO),
+where keyword FROM is replaced with keyword TO."
+  (mapc
+   (lambda (cons)
+     (let ((from (car cons))
+           (to (cdr cons)))
+       (if-let ((value (plist-member plist from)))
+           (setcar value to))))
+   replacement-alist)
+  plist)
+
 (provide 'mic-utils)
 ;;; mic-utils.el ends here
