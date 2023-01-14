@@ -136,11 +136,11 @@ where each `cdr' keyword is replaced with `car'."
                   filter new-keyword old-keyword replacement-alist))
      (let ((inner-output-plist (,filter (list ,old-keyword (plist-get plist ,new-keyword)))))
        (mic-plist-replace-keywords inner-output-plist ,replacement-alist)
-       (map-do
-        (lambda (key value)
-          (mic-plist-put-append plist
-                                key value))
-        inner-output-plist))
+       (while inner-output-plist
+         (let ((key (pop inner-output-plist))
+               (value (pop inner-output-plist)))
+           (mic-plist-put-append plist
+                                 key value))))
      (mic-plist-delete plist ,new-keyword)))
 
 ;;;###autoload
