@@ -77,6 +77,15 @@ The test defined by this expands macro twice."
        (autoload 'cl-map "feature-name")
        (autoload 'cl-mapcar "feature-name"))))
 
+(mic-ert-macroexpand-2 mic-auto-mode
+  ((mic feature-name
+     :auto-mode
+     (("\\.html?\\'" . web-mode)
+      ("\\.css\\'" . web-mode)))
+   . (prog1 'feature-name
+       (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+       (add-to-list 'auto-mode-alist '("\\.css\\'" . web-mode)))))
+
 (mic-ert-macroexpand-2 mic-custom
   ((mic feature-name
      :custom
