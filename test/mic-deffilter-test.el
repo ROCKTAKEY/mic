@@ -92,6 +92,20 @@
     (should (equal (plist-get result :foo) '(a)))
     (should (equal (plist-get result :bar) '(4)))))
 
+(mic-deffilter-replace-keyword-append mic-test-mic-deffilter-replace-keyword-append
+                                      (lambda (plist)
+                                        (list :eval (plist-get plist :foo)))
+                                      :foo-after-load :foo
+                                      '((:eval . :eval-after-load)))
+
+(ert-deftest mic-deffilter-replace-keyword-append ()
+  (let* ((init '(:foo-after-load ((message "Hello")) :hoge 2))
+         (result (mic-test-mic-deffilter-replace-keyword-append init)))
+    (should-not (plist-get result :foo-after-load))
+    (should-not (plist-get result :eval))
+    (should (equal (plist-get result :eval-after-load) '((message "Hello"))))
+    (should (equal (plist-get result :hoge) 2))))
+
 (mic-deffilter-t-to-name mic-test-mic-deffilter-t-to-name :foo)
 
 (ert-deftest mic-deffilter-t-to-name ()
