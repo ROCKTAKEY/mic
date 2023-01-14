@@ -35,14 +35,15 @@
 ;; .. 3. `:eval-installation'
 ;; 4. Use default `mic'
 ;; .. 1. `:autoload-interactive', `:autoload-noninteractive'
-;; .. 2. `:custom', `:custom-after-load'
-;; .. 3. `declare-function', `defvar-noninitial'
-;; .. 4. `:define-key', `:define-key-after-load', `:define-key-with-feature'
-;; .. 5. `:face'
-;; .. 6. `:hook'
-;; .. 7. `:package'
-;; .. 8. `:require'
-;; .. 9. `:require-after'
+;; .. 2. `:auto-mode'
+;; .. 3. `:custom', `:custom-after-load'
+;; .. 4. `declare-function', `defvar-noninitial'
+;; .. 5. `:define-key', `:define-key-after-load', `:define-key-with-feature'
+;; .. 6. `:face'
+;; .. 7. `:hook'
+;; .. 8. `:package'
+;; .. 9. `:require'
+;; .. 10. `:require-after'
 ;; 5. Define your own `mic'
 ;; .. 1. Define your own `mic' with `mic-defmic'
 ;; ..... 1. Define filter
@@ -445,6 +446,7 @@
 ;;   [`mic-core'], it allows some keyword arguments:
 ;;   - `:autoload-interactive'
 ;;   - `:autoload-noninteractive'
+;;   - `:auto-mode'
 ;;   - `:custom'
 ;;   - `:custom-after-load'
 ;;   - `:declare-function'
@@ -495,7 +497,35 @@
 ;;   `----
 
 
-;; 4.2 `:custom', `:custom-after-load'
+;; 4.2 `:auto-mode'
+;; ~~~~~~~~~~~~~~~~
+
+;;   It is transformed to sexp like `(add-to-list 'auto-mode-alist ...)'.
+;;   Each element of the value should be valid as an element of
+;;   `auto-mode-alist'.
+
+;;   ,----
+;;   | (mic feature-name
+;;   |   :auto-mode
+;;   |   (("\\.html?\\'" . web-mode)
+;;   |    ("\\.css\\'" . web-mode)))
+;;   |
+;;   | ;; Expanded to:
+;;   | (mic-core feature-name :eval-installation
+;;   |   ((add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+;;   |    (add-to-list 'auto-mode-alist '("\\.css\\'" . web-mode)))
+;;   |   :eval nil :eval-after-load nil)
+;;   |
+;;   | ;; Expanded to:
+;;   | (prog1 'feature-name
+;;   |   (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+;;   |   (add-to-list 'auto-mode-alist '("\\.css\\'" . web-mode)))
+;;   |
+
+;;   `----
+
+
+;; 4.3 `:custom', `:custom-after-load'
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ;;   These are transformed to `customize-set-variable' sexps.  Each element
@@ -545,7 +575,7 @@
 ;;   `----
 
 
-;; 4.3 `declare-function', `defvar-noninitial'
+;; 4.4 `declare-function', `defvar-noninitial'
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ;;   These arguments declare functions and variables.  Each element of
@@ -584,7 +614,7 @@
 ;;   `----
 
 
-;; 4.4 `:define-key', `:define-key-after-load', `:define-key-with-feature'
+;; 4.5 `:define-key', `:define-key-after-load', `:define-key-with-feature'
 ;; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ;;   These arguments is transformed to `define-key' sexps.  On
@@ -650,7 +680,7 @@
 ;;   `----
 
 
-;; 4.5 `:face'
+;; 4.6 `:face'
 ;; ~~~~~~~~~~~
 
 ;;   This is transformed to `custom-set-faces' sexp.  Each element is
@@ -684,7 +714,7 @@
 ;;   `----
 
 
-;; 4.6 `:hook'
+;; 4.7 `:hook'
 ;; ~~~~~~~~~~~
 
 ;;   This is transformed to `add-hook' sexp.  Each element is `(HOOK
@@ -715,7 +745,7 @@
 ;;   `----
 
 
-;; 4.7 `:package'
+;; 4.8 `:package'
 ;; ~~~~~~~~~~~~~~
 
 ;;   This is transformed to `package-install' sexps.  Each arguments are
@@ -785,7 +815,7 @@
 ;;   `----
 
 
-;; 4.8 `:require'
+;; 4.9 `:require'
 ;; ~~~~~~~~~~~~~~
 
 ;;   This is transformed to `require' sexps.  Each element is feature
@@ -812,8 +842,8 @@
 ;;   `----
 
 
-;; 4.9 `:require-after'
-;; ~~~~~~~~~~~~~~~~~~~~
+;; 4.10 `:require-after'
+;; ~~~~~~~~~~~~~~~~~~~~~
 
 ;;   This is transformed to `require' sexps in `with-eval-after-load'
 ;;   section.  Each element is alist.  `car' of each element is feature

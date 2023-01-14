@@ -348,6 +348,7 @@ by filters*.
 In addition to keywords allowed by [[#mic-core][=mic-core=]], it allows some keyword arguments:
 - =:autoload-interactive=
 - =:autoload-noninteractive=
+- =:auto-mode=
 - =:custom=
 - =:custom-after-load=
 - =:declare-function=
@@ -390,6 +391,30 @@ both =:autoload-interactive= and =:autoload-noninteractive= exist.
     (autoload #'interactive-func2 "feature-name" nil t)
     (autoload #'noninteractive-func3 "feature-name")
     (autoload #'noninteractive-func4 "feature-name"))
+#+end_src
+
+** =:auto-mode=
+It is transformed to sexp like =(add-to-list 'auto-mode-alist ...)=.
+Each element of the value should be valid as an element of =auto-mode-alist=.
+
+#+begin_src emacs-lisp :tangle yes
+  (mic feature-name
+    :auto-mode
+    (("\\.html?\\'" . web-mode)
+     ("\\.css\\'" . web-mode)))
+
+  ;; Expanded to:
+  (mic-core feature-name :eval-installation
+    ((add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+     (add-to-list 'auto-mode-alist '("\\.css\\'" . web-mode)))
+    :eval nil :eval-after-load nil)
+
+  ;; Expanded to:
+  (prog1 'feature-name
+    (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.css\\'" . web-mode)))
+
+
 #+end_src
 
 ** =:custom=, =:custom-after-load=
