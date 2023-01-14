@@ -208,7 +208,7 @@ For Emacs Lisp expert, original =mic= is a little unsatisfactory or redundant.
 :PROPERTIES:
 :CUSTOM_ID: mic-core
 :END:
-=mic-core= is minimum. It can recieves only 5 keywords:
+=mic-core= is minimum. It can recieves only several keywords:
 - =:eval=
 - =:eval-after-load=
 - =:eval-after-others=

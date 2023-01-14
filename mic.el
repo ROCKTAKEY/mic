@@ -291,7 +291,7 @@
 ;; 3 Use `mic-core', minimum one
 ;; =============================
 
-;;   `mic-core' is minimum.  It can recieves only 5 keywords:
+;;   `mic-core' is minimum. It can recieves only several keywords:
 ;;   - `:eval'
 ;;   - `:eval-after-load'
 ;;   - `:eval-after-others'
