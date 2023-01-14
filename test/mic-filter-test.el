@@ -86,6 +86,12 @@
                          :foo)
               'bar)))
 
+(ert-deftest mic-filter-quelpa ()
+  (should (equal (mic-filter-quelpa '(:quelpa (package-name
+                                               (hydra :repo "abo-abo/hydra" :fetcher github))))
+                 '(:eval-installation ((quelpa 'package-name)
+                                       (quelpa '(hydra :repo "abo-abo/hydra" :fetcher github)))))))
+
 
 
 (ert-deftest mic-filter-define-key-general ()

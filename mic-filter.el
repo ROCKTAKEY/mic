@@ -43,6 +43,18 @@ This filter use `:el-get' keyword."
     (plist-get plist :el-get)))
   (mic-plist-delete plist :el-get))
 
+(defun mic-filter-quelpa (plist)
+  "Create `quelpa' sexp from PLIST and append.
+It is appended to value of `:eval-installation'.
+This filter use `:quelpa' keyword."
+  (mic-plist-put-append
+   plist :eval-installation
+   (mapcar
+    (lambda (arg)
+      `(quelpa ',arg))
+    (plist-get plist :quelpa)))
+  (mic-plist-delete plist :quelpa))
+
 (defun mic-filter-straight (plist)
   "Create `straight-use-package' sexp from PLIST and append.
 It is appended to value of `:eval-installation'.
