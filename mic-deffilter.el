@@ -144,6 +144,22 @@ where each `cdr' keyword is replaced with `car'."
      (mic-plist-delete plist ,new-keyword)))
 
 ;;;###autoload
+(defmacro mic-deffilter-convert-after-load
+    (name filter new-keyword old-keyword &optional docstring)
+  "Define filter function named NAME with document DOCSTRING.
+This macro makes FILTER `after-load'-ized.
+
+The filter recieves PLIST and returns plist.
+The filter conduct same procedure as FILTER, but input and output keyword is
+altered.
+1. NEW-KEYWORD is used as an input keyword instead of OLD-KEYWORD.
+2. `:eval' is replaced with `:eval-after-load' in output."
+  `(mic-deffilter-replace-keyword-append
+    ,name ,filter ,new-keyword ,old-keyword
+    '((:eval . :eval-after-load))
+    ,docstring))
+
+;;;###autoload
 (defmacro mic-deffilter-t-to-name (name keyword &optional docstring)
   "Define filter function named NAME with document DOCSTRING.
 The filter recieves plist and returns plist.

@@ -106,6 +106,19 @@
     (should (equal (plist-get result :eval-after-load) '((message "Hello"))))
     (should (equal (plist-get result :hoge) 2))))
 
+(mic-deffilter-convert-after-load mic-test-mic-deffilter-convert-after-load
+                                  (lambda (plist)
+                                    (list :eval (plist-get plist :foo)))
+                                  :foo-after-load :foo)
+
+(ert-deftest mic-deffilter-convert-after-load ()
+  (let* ((init '(:foo-after-load ((message "Hello")) :hoge 2))
+         (result (mic-test-mic-deffilter-convert-after-load init)))
+    (should-not (plist-get result :foo-after-load))
+    (should-not (plist-get result :eval))
+    (should (equal (plist-get result :eval-after-load) '((message "Hello"))))
+    (should (equal (plist-get result :hoge) 2))))
+
 (mic-deffilter-t-to-name mic-test-mic-deffilter-t-to-name :foo)
 
 (ert-deftest mic-deffilter-t-to-name ()
