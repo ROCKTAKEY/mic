@@ -83,5 +83,16 @@
     (should (eq (plist-get plist :baz) 3))
     (should (equal plist '(:baz 3)))))
 
+(ert-deftest mic-plist-replace-keywords ()
+  (let ((result
+         (mic-plist-replace-keywords '(:foo 1 :bar 2 :baz 3)
+                                     '((:foo . :hoge)
+                                       (:bar . :fuga)))))
+    (should-not (plist-get result :foo))
+    (should-not (plist-get result :bar))
+    (should (eq (plist-get result :hoge) 1))
+    (should (eq (plist-get result :fuga) 2))
+    (should (eq (plist-get result :baz) 3))))
+
 (provide 'mic-utils-test)
 ;;; mic-utils-test.el ends here
