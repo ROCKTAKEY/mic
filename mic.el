@@ -297,6 +297,7 @@
 ;;   - `:eval-after-others'
 ;;   - `:eval-after-others-after-load'
 ;;   - `:eval-before-all'
+;;   - `:eval-installation'
 
 ;;   Each element of `:eval' arguments are evaluated.  Time to evaluate is
 ;;   different.
