@@ -39,8 +39,8 @@
 (ert-deftest mic-filter-hook-quote ()
   (should (equal
            (mic-filter-hook-quote
-            '(:hook ((after-init-hook . func1)
-                     (switch-buffer-hook . (lambda () 1)))))
+            '(:hook-quote ((after-init-hook . func1)
+                           (switch-buffer-hook . (lambda () 1)))))
            '(:eval
              ((add-hook 'after-init-hook #'func1)
               (add-hook 'switch-buffer-hook #'(lambda nil 1)))))))
