@@ -46,8 +46,9 @@
 ;; .. 10. `:require-after'
 ;; 5. Define your own `mic'
 ;; .. 1. Define your own `mic' with `mic-defmic'
-;; ..... 1. Define filter
-;; ..... 2. Define `mic' with the filter and `mic-defmic'
+;; ..... 1. What is a filter?
+;; ..... 2. Pre-defined filters
+;; ..... 3. Define `mic' with the filter and `mic-defmic'
 ;; .. 2. Define your own `mic' with `defmacro'
 ;; 6. Alternative
 ;; 7. Contribute
@@ -292,7 +293,7 @@
 ;; 3 Use `mic-core', minimum one
 ;; =============================
 
-;;   `mic-core' is minimum. It can recieves only several keywords:
+;;   `mic-core' is minimum.  It can recieves only several keywords:
 ;;   - `:eval'
 ;;   - `:eval-after-load'
 ;;   - `:eval-after-others'
@@ -902,8 +903,8 @@
 ;;   and another `mic', any parent is allowed).
 
 
-;; 5.1.1 Define filter
-;; -------------------
+;; 5.1.1 What is a filter?
+;; -----------------------
 
 ;;   The filter recieves one argument, `PLIST' (plist, property list), and
 ;;   returns `RETURNED-PLIST'.  It filters or transforms it into returned
@@ -942,10 +943,386 @@
 ;;   |     ;; When forget it, parent recieves it and may cause unexpected result.
 ;;   |     (mic-plist-delete plist :bind)
 ;;   |     plist))
+;;   |
+;;   | ;; `defmic' defines new `mic' (see "Define mic with the filter and mic-defmic" section for more infomation)
+;;   | (mic-defmic yourmic
+;;   |   mic                                   ; Derived from `mic'
+;;   |   :filters '(my-filter-global-set-key-without-quote))
+;;   |
+;;   | ;; Here is `yourmic' expression
+;;   | (yourmic package-name
+;;   |   ;; New keyword you added by `my-filter-global-set-key-without-quote'
+;;   |   :bind
+;;   |   (("M-a" . beginning-of-defun)
+;;   |    ("M-e" . end-of-defun))
+;;   |   ;; Of course keywords for `mic', which is original of `yourmic', is allowed.
+;;   |   :hook ((after-init-hook . #'ignore)))
+;;   |
+;;   | ;; Then first `PLIST' is:
+;;   | '( :name package-name
+;;   |    :bind (("M-a" . beginning-of-defun)
+;;   |           ("M-e" . end-of-defun))
+;;   |    :hook ((after-init-hook . #'ignore)))
+;;   |
+;;   | ;; When you expand the sexp before, the filter you defined is called like:
+;;   | (my-filter-global-set-key-without-quote
+;;   |  '( :name package-name
+;;   |     :bind (("M-a" . beginning-of-defun)
+;;   |            ("M-e" . end-of-defun))
+;;   |     :hook ((after-init-hook . #'ignore))))
+;;   |
+;;   | ;; It returns `RETURNED-PLIST':
+;;   | '( :name package-name
+;;   |    :hook ((after-init-hook function ignore))
+;;   |    :eval
+;;   |    ((global-set-key (kbd "M-a") #'beginning-of-defun)
+;;   |     (global-set-key (kbd "M-e") #'end-of-defun)))
+;;   |
+;;   | ;; The `RETURNED-PLIST' is passed to a next filter if exists.
+;;   | ;; You use only one filter in definition,
+;;   | ;; so it is expanded to:
+;;   | (mic package-name
+;;   |   :hook ((after-init-hook . #'ignore))
+;;   |   :eval
+;;   |   ((global-set-key (kbd "M-a") #'beginning-of-defun)
+;;   |    (global-set-key (kbd "M-e") #'end-of-defun)))
 ;;   `----
 
 
-;; 5.1.2 Define `mic' with the filter and `mic-defmic'
+;; 5.1.2 Pre-defined filters
+;; -------------------------
+
+;;   Some pre-defined filter, unused by `mic' definition, are available in
+;;   `mic-filter.el'.
+
+
+;; * 5.1.2.1 Filters for package manager
+
+;;   - `mic-filter-ell-get'
+;;   - `mic-filter-straight'
+;;   - `mic-filter-quelpa'
+;;   For more infomation, see docstring of each filter.
+
+;;   ,----
+;;   | ;;;  el-get
+;;   | (mic-defmic mic-with-el-get mic
+;;   |   :filters '(mic-filter-el-get))
+;;   |
+;;   | (mic-with-el-get hydra
+;;   |   :el-get ((hydra :repo "abo-abo/hydra" :fetcher github)))
+;;   |
+;;   | ;; Expanded to:
+;;   | (mic hydra
+;;   |   :eval-installation
+;;   |   ((el-get-bundle hydra :repo "abo-abo/hydra" :fetcher github)))
+;;   `----
+
+;;   ,----
+;;   | ;;;  quelpa
+;;   | (mic-defmic mic-with-quelpa mic
+;;   |   :filters '(mic-filter-quelpa))
+;;   |
+;;   | (mic-with-quelpa hydra
+;;   |   :quelpa ((hydra :repo "abo-abo/hydra" :fetcher github)))
+;;   |
+;;   | ;; Expanded to:
+;;   | (mic hydra
+;;   |   :eval-installation
+;;   |   ((quelpa
+;;   |     '(hydra :repo "abo-abo/hydra" :fetcher github))))
+;;   `----
+
+;;   ,----
+;;   | ;;;  straight
+;;   | (mic-defmic mic-with-straight mic
+;;   |   :filters '(mic-filter-straight))
+;;   |
+;;   | (mic-with-straight hydra
+;;   |   :straight ((hydra :repo "abo-abo/hydra" :host github)))
+;;   |
+;;   | ;; Expanded to:
+;;   | (mic hydra
+;;   |   :eval-installation
+;;   |   ((straight-use-package
+;;   |     '(hydra :repo "abo-abo/hydra" :host github))))
+;;   `----
+
+
+;; * 5.1.2.2 Key definition
+
+;;   - `mic-filter-define-key-general', `mic-filter-general-define-key'
+;;   - `mic-filter-mykie'
+;;   - `mic-filter-hydra'
+;;   - `mic-filter-pretty-hydra', `mic-filter-pretty-hydra+'
+;;   - `mic-filter-mode-hydra'
+
+;;   Here is summaries and examples for these filters.  See a docstring and
+;;   definition of each filter for more information.
+
+
+;;   + 5.1.2.2.1 general.el
+
+;;     [general.el] makes key definition more convenient.  There are some
+;;     filters for integration with it:
+;;     - `mic-filter-define-key-general'
+;;     - `mic-filter-general-define-key'
+;;     The both are expanded to `general-define-key' call.
+
+;;     `mic-filter-define-key-general', which uses a `:define-key-general'
+;;     keyword, is compatible with `:define-key' keyword.  In the other
+;;     words, the syntax like `((keymap (key . function)...)...)' is
+;;     allowed but `general-define-key' is used as backend.
+
+;;     On the other hand, `mic-filter-general-define-key', which uses
+;;     `:general-define-key' keyword, uses `general-define-key' syntax.  So
+;;     you can use `:keymap' or `:prefix' keyword.  Each element of the
+;;     value of `:general-define-key' is directly passed to
+;;     `general-define-key'.
+
+;;     ,----
+;;     | (mic-defmic mic-with-define-key-general mic
+;;     |   :filters
+;;     |   '(mic-filter-define-key-general))
+;;     |
+;;     | (mic-with-define-key-general package-name
+;;     |   :define-key-general
+;;     |   ((keymap1
+;;     |     ("C-d" . #'func1)
+;;     |     ("C-q" . #'func2))
+;;     |    (override
+;;     |     ("C-a" . #'func3)
+;;     |     ("C-e" . #'func4))))
+;;     |
+;;     | ;; Expanded to:
+;;     | (mic package-name
+;;     |   :eval
+;;     |   ((general-define-key :keymaps 'keymap1
+;;     |                        "C-d" (function func1)
+;;     |                        "C-q" (function func2))
+;;     |    (general-define-key :keymaps 'override
+;;     |                        "C-a" (function func3)
+;;     |                        "C-e" (function func4))))
+;;     `----
+
+
+;;     [general.el] <https://github.com/noctuid/general.el>
+
+
+;;   + 5.1.2.2.2 Mykie.el
+
+;;     [Mykie.el] is is multiplexer of key definition.  There is filter for
+;;     mykie:
+;;     - `mic-filter-mykie'
+
+;;     `mic-filter-mykie', which uses a `:mykie' keyword, creates
+;;     `mykie:define-key' sexp.  Each element of the value on `:mykie'
+;;     keyword is a cons cell like `((keymap (key [:keyword function1]
+;;     ...)...)...)'.  `car' of each element, which is keymap, and each
+;;     element of `cdr' of each element of the value is passed to
+;;     `mykie:define-key'.
+
+;;     ,----
+
+;;     `----
+
+;;     ,----
+;;     | (mic-defmic mic-with-filter-mykie mic
+;;     |   :filters
+;;     |   '(mic-filter-mykie))
+;;     |
+;;     | (mic-with-filter-mykie package-name
+;;     |   :mykie
+;;     |   ((global-map
+;;     |     ("C-w" :default hydra-window-resizer/body :region kill-region))))
+;;     |
+;;     | ;; Expanded to:
+;;     | (mic package-name
+;;     |   :eval
+;;     |   ((mykie:define-key global-map "C-w" :default hydra-window-resizer/body :region kill-region)))
+;;     `----
+
+
+;;     [Mykie.el] <https://github.com/yuutayamada/mykie-el>
+
+
+;;   + 5.1.2.2.3 Hydra
+
+;;     [Hydra] makes Emacs bindings stick around.  There is a filter for
+;;     integration of Hydra:
+;;     - `mic-filter-hydra'
+
+;;     `mic-filter-hydra', which uses a `:hydra' keyword, creates
+;;     `defhydra' sexp.  Each element of the value on the `:hydra' keyword
+;;     is passed to `defhydra' directly.
+
+;;     ,----
+;;     | (mic-defmic mic-with-hydra mic
+;;     |   :filters '(mic-filter-hydra))
+;;     |
+;;     | (mic-with-hydra package-name
+;;     |   :hydra
+;;     |   ;; Spacing induces good indent
+;;     |   (( hydra-window-resizer ()
+;;     |      ("p" shrink-window "shrink")
+;;     |      ("n" enlarge-window "enlarge")
+;;     |      ("f" enlarge-window-horizontally "enlarge-horizontally")
+;;     |      ("b" shrink-window-horizontally "shrink-horizontally")
+;;     |      ("<down>" shrink-window)
+;;     |      ("<up>" enlarge-window)
+;;     |      ("<right>" enlarge-window-horizontally)
+;;     |      ("<left>" shrink-window-horizontally)
+;;     |      ("q" nil "quit"))))
+;;     |
+;;     | ;; Expanded to:
+;;     | (mic package-name
+;;     |   :eval
+;;     |   ((defhydra hydra-window-resizer nil
+;;     |      ("p" shrink-window "shrink" :exit nil :cmd-name hydra-window-resizer/shrink-window :column nil)
+;;     |      ("n" enlarge-window "enlarge")
+;;     |      ("f" enlarge-window-horizontally "enlarge-horizontally")
+;;     |      ("b" shrink-window-horizontally "shrink-horizontally")
+;;     |      ("<down>" shrink-window)
+;;     |      ("<up>" enlarge-window)
+;;     |      ("<right>" enlarge-window-horizontally)
+;;     |      ("<left>" shrink-window-horizontally)
+;;     |      ("q" nil "quit"))))
+;;     `----
+
+
+;;     [Hydra] <https://github.com/abo-abo/hydra>
+
+
+;;   + 5.1.2.2.4 pretty-hydra
+
+;;     [Pretty Hydra] defines prettier hydra.  There is some filters for
+;;     integration of it:
+;;     - `mic-filter-pretty-hydra'
+;;     - `mic-filter-pretty-hydra+'
+
+;;     `mic-filter-pretty-hydra' uses `:pretty-hydra', whereas
+;;     `mic-filter-pretty-hydra+' uses `:pretty-hydra+'.  Each element is
+;;     passed to `pretty-hydra-define', which defines new hydra, or
+;;     `pretty-hydra-define+', which appends to existing hydra if exist.
+;;     The both have absolutely same syntax.  Each element is passed to each
+;;     defining macros directly.
+
+;;     ,----
+;;     | (mic-defmic mic-with-pretty-hydra mic
+;;     |   :filters '(mic-filter-pretty-hydra
+;;     |              mic-filter-pretty-hydra+))
+;;     |
+;;     | ;;; `:pretty-hydra'
+;;     | (mic-with-pretty-hydra package-name
+;;     |   :pretty-hydra
+;;     |   (( hydra-window-resizer ()
+;;     |      ("Alphabet"
+;;     |       (("p" shrink-window "shrink")
+;;     |        ("n" enlarge-window "enlarge")
+;;     |        ("f" enlarge-window-horizontally "enlarge-horizontally")
+;;     |        ("b" shrink-window-horizontally "shrink-horizontally"))
+;;     |       "Arrow"
+;;     |       (("<down>" shrink-window)
+;;     |        ("<up>" enlarge-window)
+;;     |        ("<right>" enlarge-window-horizontally)
+;;     |        ("<left>" shrink-window-horizontally))
+;;     |       "Quit"
+;;     |       ("q" nil "quit")))))
+;;     |
+;;     | ;; Expanded to:
+;;     | (mic package-name
+;;     |   :eval
+;;     |   ((pretty-hydra-define hydra-window-resizer nil
+;;     |      ("Alphabet"
+;;     |       (("p" shrink-window "shrink")
+;;     |        ("n" enlarge-window "enlarge")
+;;     |        ("f" enlarge-window-horizontally "enlarge-horizontally")
+;;     |        ("b" shrink-window-horizontally "shrink-horizontally"))
+;;     |       "Arrow"
+;;     |       (("<down>" shrink-window "shrink-window")
+;;     |        ("<up>" enlarge-window "enlarge-window")
+;;     |        ("<right>" enlarge-window-horizontally "enlarge-window-horizontally")
+;;     |        ("<left>" shrink-window-horizontally "shrink-window-horizontally"))
+;;     |       "Quit"
+;;     |       ("q" nil "quit")))))
+;;     |
+;;     |
+;;     | ;;; `:pretty-hydra+'
+;;     | (mic-with-pretty-hydra package-name
+;;     |   :pretty-hydra+
+;;     |   (( hydra-window-resizer ()
+;;     |      ("Vim-like"
+;;     |       (("h" enlarge-window-horizontally "enlarge-horizontally")
+;;     |        ("j" shrink-window "shrink")
+;;     |        ("k" enlarge-window "enlarge")
+;;     |        ("l" shrink-window-horizontally "shrink-horizontally"))))))
+;;     |
+;;     | ;; Expanded to:
+;;     | (mic package-name
+;;     |   :eval
+;;     |   ((pretty-hydra-define+ hydra-window-resizer nil
+;;     |      ("Vim-like"
+;;     |       (("h" enlarge-window-horizontally "enlarge-horizontally")
+;;     |        ("j" shrink-window "shrink")
+;;     |        ("k" enlarge-window "enlarge")
+;;     |        ("l" shrink-window-horizontally "shrink-horizontally"))))))
+;;     `----
+
+
+;;     [Pretty Hydra]
+;;     <https://github.com/jerrypnz/major-mode-hydra.el#pretty-hydra>
+
+
+;;   + 5.1.2.2.5 major-mode-hydra
+
+;;     [Major Mode Hydra] defines major-mode specific hydra function,
+;;     `major-mode-hydra'.  There is a filter for integration of it:
+;;     - `mic-filter-mode-hydra'
+
+;;     `mic-filter-mode-hydra' uses a `:mode-hydra' keyword.  Each element
+;;     of the value of the keyword is passed to `major-mode-hydra-define'
+;;     directly.
+
+;;     ,----
+;;     | (mic-defmic mic-with-mode-hydra mic
+;;     |   :filters '(mic-filter-mode-hydra))
+;;     |
+;;     | (mic-with-mode-hydra package-name
+;;     |   :mode-hydra
+;;     |   (( c-mode (:title "C Mode" :quit-key "q")
+;;     |      ("Alphabet"
+;;     |       (("p" shrink-window "shrink")
+;;     |        ("n" enlarge-window "enlarge")
+;;     |        ("f" enlarge-window-horizontally "enlarge-horizontally")
+;;     |        ("b" shrink-window-horizontally "shrink-horizontally"))
+;;     |       "Arrow"
+;;     |       (("<down>" shrink-window)
+;;     |        ("<up>" enlarge-window)
+;;     |        ("<right>" enlarge-window-horizontally)
+;;     |        ("<left>" shrink-window-horizontally))))))
+;;     |
+;;     | ;; Expanded to:
+;;     | (mic package-name
+;;     |   :eval
+;;     |   ((major-mode-hydra-define c-mode
+;;     |      (:title "C Mode" :quit-key "q")
+;;     |      ("Alphabet"
+;;     |       (("p" shrink-window "shrink")
+;;     |        ("n" enlarge-window "enlarge")
+;;     |        ("f" enlarge-window-horizontally "enlarge-horizontally")
+;;     |        ("b" shrink-window-horizontally "shrink-horizontally"))
+;;     |       "Arrow"
+;;     |       (("<down>" shrink-window "shrink-window")
+;;     |        ("<up>" enlarge-window "enlarge-window")
+;;     |        ("<right>" enlarge-window-horizontally "enlarge-window-horizontally")
+;;     |        ("<left>" shrink-window-horizontally "shrink-window-horizontally"))))))
+;;     `----
+
+
+;;     [Major Mode Hydra]
+;;     <https://github.com/jerrypnz/major-mode-hydra.el#major-mode-hydra>
+
+
+;; 5.1.3 Define `mic' with the filter and `mic-defmic'
 ;; ---------------------------------------------------
 
 ;;   `mic-defmic' recieves arguments: `NAME', `PANRENT', optional
