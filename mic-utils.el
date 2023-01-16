@@ -24,10 +24,11 @@ Change value in PLIST of PROP to VAL."
 ;;;###autoload
 (defmacro mic-plist-put-append (plist prop val)
   "Append VAL to value in PLIST of PROP."
-  `(setq ,plist
-         (if ,plist
-             (plist-put ,plist ,prop (append (plist-get ,plist ,prop) ,val))
-           (list ,prop (append (plist-get ,plist ,prop) ,val)))))
+  `(when ,val
+     (setq ,plist
+           (if ,plist
+               (plist-put ,plist ,prop (append (plist-get ,plist ,prop) ,val))
+             (list ,prop (append (plist-get ,plist ,prop) ,val))))))
 
 ;;;###autoload
 (defmacro mic-plist-delete (plist &rest props)
