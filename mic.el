@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.32.3
+;; Version: 0.32.4
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -1631,6 +1631,14 @@ PLIST is filtered by each FILTERS in order and passed to PARENT.
   (unless (stringp docstring)
     (push docstring plist)
     (setq docstring nil))
+  (let ((allowed-keywords '(:filters))
+        (plist plist)
+        key)
+    (while (setq key (pop plist))
+      (pop plist)
+      (unless (memq key allowed-keywords)
+        (error "Keyword %s is not allowed in `mic-defmic'" key))))
+
   (let ((filters (eval (plist-get plist :filters))))
     `(defmacro ,name (name &rest plist)
        ,(or docstring
