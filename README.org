@@ -1171,9 +1171,108 @@ See each macro definition and docstring for more information.
       "Optional docstring."
       :eval '((message "Hello")))
 
+    ;; Add a :eval keyword when it does not exist.
     (example-filter-const '(:other-keyword "Hi"))
     ;; =>
     (:other-keyword "Hi" :eval ((message "Hello")))
+
+    ;; Overwrite when a :eval keyword exists.
+    (example-filter-const '(:eval ((message "Good bye")) :other-keyword "Hi"))
+    ;; =>
+    (:eval ((message "Hello")) :other-keyword "Hi")
+  #+end_src
+- =mic-deffilter-const-append= :: Append constant value on keyword.
+  #+begin_src emacs-lisp :tangle yes
+    (mic-deffilter-const-append example-filter-const-append
+      :eval '((message "Hello")))
+
+    ;; Same as `mic-deffilter-const' when any :eval keyword does not exist.
+    (example-filter-const-append '(:other-keyword "Hi"))
+    ;; =>
+    (:other-keyword "Hi" :eval ((message "Hello")))
+
+    ;; Append the value when the a :eval keyword exists.
+    (example-filter-const-append '(:eval ((message "Good bye")) :other-keyword "Hi"))
+    ;; =>
+    (:eval ((message "Good bye") (message "Hello")) :other-keyword "Hi")
+  #+end_src
+- =mic-deffilter-ignore= :: Just remove value on keyword.
+  #+begin_src emacs-lisp :tangle yes
+    (mic-deffilter-ignore example-filter-ignore
+      :ignore-me)
+
+    (example-filter-ignore '(:ignore-me "Ignored" :remain-me "Remained"))
+    ;; =>
+    (:remain-me "Remained")
+  #+end_src
+- =mic-deffilter-nonlist-to-list= :: If value is not list, wrap it into list.
+  #+begin_src emacs-lisp :tangle yes
+    (mic-deffilter-nonlist-to-list example-filter-nonlist-to-list
+      :package)
+
+    (example-filter-nonlist-to-list '(:package t))
+    ;; =>
+    (:package (t))
+  #+end_src
+- =mic-deffilter-replace-keyword-append= :: From an existing filter, define a new filter which uses another keywords as input and output.
+  Value is appended to the keyword for output.
+  #+begin_src emacs-lisp :tangle yes
+    ;; Original filter: `mic-filter-mykie'
+    (mic-filter-mykie '(:mykie ((global-map ("C-a" :default beginning-of-line)))))
+    ;; =>
+    (:eval ((mykie:define-key global-map "C-a" :default beginning-of-line)))
+
+
+    (mic-deffilter-replace-keyword-append example-filter-replace-keyword-append
+      mic-filter-mykie
+      :mykie-after-load :mykie
+      '((:eval . :eval-after-load)))
+
+    ;; An input keyword and an output keyword is replaced
+    (example-filter-replace-keyword-append '(:mykie-after-load ((global-map ("C-a" :default beginning-of-line)))))
+    ;; =>
+    (:eval-after-load ((mykie:define-key global-map "C-a" :default beginning-of-line)))
+  #+end_src
+- =mic-deffilter-convert-after-load= :: From an existing filter, define a new filter which outputs an =:eval-after-load= keyword instead of =:eval=.
+  It is same as =(mic-deffilter-replace-keyword-append name filter old-keyword new-keyword '((:eval . :eval-after-load)))=.
+  #+begin_src emacs-lisp :tangle yes
+    ;; Original filter: `mic-filter-mykie'
+    (mic-filter-mykie '(:mykie ((global-map ("C-a" :default beginning-of-line)))))
+    ;; =>
+    (:eval ((mykie:define-key global-map "C-a" :default beginning-of-line)))
+
+
+    (mic-deffilter-convert-after-load example-filter-convert-after-load
+      mic-filter-mykie
+      :mykie-after-load :mykie)
+
+    ;; An input keyword and an output keyword is replaced
+    (example-filter-convert-after-load '(:mykie-after-load ((global-map ("C-a" :default beginning-of-line)))))
+    ;; =>
+    (:eval-after-load ((mykie:define-key global-map "C-a" :default beginning-of-line)))
+  #+end_src
+- =mic-deffilter-t-to-name= :: Replace =t= with feature name in a list keyword.
+  #+begin_src emacs-lisp :tangle yes
+    (mic-deffilter-t-to-name example-filter-t-to-name
+      :replace)
+
+     ;; :name keyword is needed in addition to :replace keyword
+    (example-filter-t-to-name '(:name feature-name :replace (1 2 3 t 5 6 t)))
+    ;; =>
+    (:name feature-name :replace (1 2 3 feature-name 5 6 feature-name))
+  #+end_src
+- =mic-deffilter-validate= :: Return a recieved plist except that it validates and sieves keyword in the plist
+  to confirm the returned plist has no invalid keywords.
+  #+begin_src emacs-lisp :tangle yes
+    (mic-deffilter-validate example-filter-validate
+      :name :key1 :key2)
+
+    (example-filter-validate '(:name feature-name :key1 "Hello" :key2 "Hi" :key3 "Bad" :key4 "Sad"))
+    ;; =>
+    (:name feature-name :key1 "Hello" :key2 "Hi")
+    ;; In addition, warnings are displayed like:
+    ;; Warning (emacs): 'mic' feature-name: The keyword :key3 is not allowed by filter 'example-filter-validate'
+    ;; Warning (emacs): 'mic' feature-name: The keyword :key4 is not allowed by filter 'example-filter-validate'
   #+end_src
 
 *** Define =mic= with the filter and =mic-defmic=
