@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.32.4
+;; Version: 0.33.0
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -1622,16 +1622,19 @@ FILTERS is list of filter, which recieve plist and return plist.
 The recieved plist has property `:name', which is package name.
 It also has other properties from other filter before.
 
+If ERROR-PROTECTION? is non-nil, any errors are catched, warned and ignored.
+Otherwise, when errors occur, loading your init.el stops.
+
 The defined macro recieves two arguments, NAME and PLIST.
 PLIST is filtered by each FILTERS in order and passed to PARENT.
 
-\(fn NAME PARENT [DOCSTRING] &key FILTERS)"
+\(fn NAME PARENT [DOCSTRING] &key FILTERS ERROR-PROTECTION?)"
   (declare (indent defun)
            (doc-string 2))
   (unless (stringp docstring)
     (push docstring plist)
     (setq docstring nil))
-  (let ((allowed-keywords '(:filters))
+  (let ((allowed-keywords '(:filters :error-protection?))
         (plist plist)
         key)
     (while (setq key (pop plist))
@@ -1639,7 +1642,8 @@ PLIST is filtered by each FILTERS in order and passed to PARENT.
       (unless (memq key allowed-keywords)
         (error "Keyword %s is not allowed in `mic-defmic'" key))))
 
-  (let ((filters (eval (plist-get plist :filters))))
+  (let* ((filters (eval (plist-get plist :filters)))
+         (error-protection? (eval (plist-get plist :error-protection?))))
     `(defmacro ,name (name &rest plist)
        ,(or docstring
             (format "`mic' alternative defined by `mic-defmic'.
@@ -1651,13 +1655,33 @@ Argument NAME, PLIST. Used filters are:
                      filters
                      "\n")))
        (declare (indent defun))
-       (mic-apply-filter plist name
-         ,@filters)
-       (backquote
-        ,(list
-          parent
-          ',name
-          ',@plist)))))
+       ,@(if error-protection?
+             `((condition-case error
+                   (mic-apply-filter plist name
+                     ,@filters)
+                 (error
+                  (warn "`%s' %s: macro expansion error: %s"
+                        ',name name (error-message-string error))))
+               ,(let ((error (make-symbol "error")))
+                  `(backquote
+                    ,(list
+                      'condition-case error
+                      (list
+                       parent
+                       ',name
+                       ',@plist)
+                      `(error
+                        ,(list
+                          'warn "`%s' %s: evaluation error: %s"
+                          `',name '',name
+                          `(error-message-string ,error)))))))
+           `((mic-apply-filter plist name
+               ,@filters)
+             (backquote
+              ,(list
+                parent
+                ',name
+                ',@plist)))))))
 
 
 
