@@ -126,6 +126,7 @@ altered.
 1. NEW-KEYWORD is used as an input keyword instead of OLD-KEYWORD.
 2. Output keywords are replaced according to REPLACEMENT-ALIST.
   Each `cdr' keyword is replaced with `car' keyword in REPLACEMENT-ALIST."
+  (declare (indent defun))
   `(defun ,name (plist)
      ,(or docstring
           (format "Filter for `mic'.
@@ -154,6 +155,7 @@ The filter conduct same procedure as FILTER, but input and output keyword is
 altered.
 1. NEW-KEYWORD is used as an input keyword instead of OLD-KEYWORD.
 2. `:eval' is replaced with `:eval-after-load' in output."
+  (declare (indent defun))
   `(mic-deffilter-replace-keyword-append
     ,name ,filter ,new-keyword ,old-keyword
     '((:eval . :eval-after-load))
