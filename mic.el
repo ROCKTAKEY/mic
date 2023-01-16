@@ -48,7 +48,8 @@
 ;; .. 1. Define your own `mic' with `mic-defmic'
 ;; ..... 1. What is a filter?
 ;; ..... 2. Pre-defined filters
-;; ..... 3. Define `mic' with the filter and `mic-defmic'
+;; ..... 3. Helper for defining a filter
+;; ..... 4. Define `mic' with the filter and `mic-defmic'
 ;; .. 2. Define your own `mic' with `defmacro'
 ;; 6. Alternative
 ;; 7. Contribute
@@ -1322,7 +1323,178 @@
 ;;     <https://github.com/jerrypnz/major-mode-hydra.el#major-mode-hydra>
 
 
-;; 5.1.3 Define `mic' with the filter and `mic-defmic'
+;; * 5.1.2.3 Alternative of filters
+
+;;   + 5.1.2.3.1 Hook
+
+;;     - `mic-filter-hook-quote'
+;;     This is almost same as `mic-filter-hook', but `cdr' of each element
+;;     of the value should not be quoted.  `:hook-quote' is used as
+;;     keyword.
+
+
+;; 5.1.3 Helper for defining a filter
+;; ----------------------------------
+
+;;   There are some helpers for defining a filter.
+
+
+;; * 5.1.3.1 Utilities
+
+;;   Usually, a filter proceeds filtering by 4 steps:
+;;   1. Get data on a specific keyword in `PLIST'
+;;   2. Convert data to sexp
+;;   3. Append the sexp to value on `:eval' in `PLIST'
+;;   4. Delete the specific keyword from `PLIST'
+
+;;   There are some macros to help step 3. and 4. in `mic-utils.el'.
+;;   - `mic-plist-put-append', which helps step 3., takes three arguments,
+;;     `PLIST', `PROP', which means keyword, and `VAL'.  It get a value on
+;;     `PROP' in `PLIST', and appends `VAL' to the value.
+;;   - `mic-plist-delete', which helps step 4., takes one obligatory
+;;     argument `PLIST', and extra arguments `PROPS'.  It removes `PROPS'
+;;     keywords from `PLIST' and return it.
+
+
+;; * 5.1.3.2 `deffilter'
+
+;;   To define a simple filter or to modify an existing filter, you can use
+;;   `mic-deffilter-*' macros in `mic-deffilter.el'.  See each macro
+;;   definition and docstring for more information.
+
+;;   `mic-deffilter-alias'
+;;         Induce alias keyword.
+;;         ,----
+;;         | (mic-deffilter-alias example-filter-alias :alias :origin)
+;;         |
+;;         | (example-filter-alias '(:alias "Hello"))
+;;         | ;; =>
+;;         | (:origin "Hello")
+;;         `----
+;;   `mic-deffilter-const'
+;;         Put constant value on keyword.
+;;         ,----
+;;         | (mic-deffilter-const example-filter-const
+;;         |   "Optional docstring."
+;;         |   :eval '((message "Hello")))
+;;         |
+;;         | ;; Add a :eval keyword when it does not exist.
+;;         | (example-filter-const '(:other-keyword "Hi"))
+;;         | ;; =>
+;;         | (:other-keyword "Hi" :eval ((message "Hello")))
+;;         |
+;;         | ;; Overwrite when a :eval keyword exists.
+;;         | (example-filter-const '(:eval ((message "Good bye")) :other-keyword "Hi"))
+;;         | ;; =>
+;;         | (:eval ((message "Hello")) :other-keyword "Hi")
+;;         `----
+;;   `mic-deffilter-const-append'
+;;         Append constant value on keyword.
+;;         ,----
+;;         | (mic-deffilter-const-append example-filter-const-append
+;;         |   :eval '((message "Hello")))
+;;         |
+;;         | ;; Same as `mic-deffilter-const' when any :eval keyword does not exist.
+;;         | (example-filter-const-append '(:other-keyword "Hi"))
+;;         | ;; =>
+;;         | (:other-keyword "Hi" :eval ((message "Hello")))
+;;         |
+;;         | ;; Append the value when the a :eval keyword exists.
+;;         | (example-filter-const-append '(:eval ((message "Good bye")) :other-keyword "Hi"))
+;;         | ;; =>
+;;         | (:eval ((message "Good bye") (message "Hello")) :other-keyword "Hi")
+;;         `----
+;;   `mic-deffilter-ignore'
+;;         Just remove value on keyword.
+;;         ,----
+;;         | (mic-deffilter-ignore example-filter-ignore
+;;         |   :ignore-me)
+;;         |
+;;         | (example-filter-ignore '(:ignore-me "Ignored" :remain-me "Remained"))
+;;         | ;; =>
+;;         | (:remain-me "Remained")
+;;         `----
+;;   `mic-deffilter-nonlist-to-list'
+;;         If value is not list, wrap it into list.
+;;         ,----
+;;         | (mic-deffilter-nonlist-to-list example-filter-nonlist-to-list
+;;         |   :package)
+;;         |
+;;         | (example-filter-nonlist-to-list '(:package t))
+;;         | ;; =>
+;;         | (:package (t))
+;;         `----
+;;   `mic-deffilter-replace-keyword-append'
+;;         From an existing filter, define a new filter which uses another
+;;         keywords as input and output.  Value is appended to the keyword
+;;         for output.
+;;         ,----
+;;         | ;; Original filter: `mic-filter-mykie'
+;;         | (mic-filter-mykie '(:mykie ((global-map ("C-a" :default beginning-of-line)))))
+;;         | ;; =>
+;;         | (:eval ((mykie:define-key global-map "C-a" :default beginning-of-line)))
+;;         |
+;;         |
+;;         | (mic-deffilter-replace-keyword-append example-filter-replace-keyword-append
+;;         |   mic-filter-mykie
+;;         |   :mykie-after-load :mykie
+;;         |   '((:eval . :eval-after-load)))
+;;         |
+;;         | ;; An input keyword and an output keyword is replaced
+;;         | (example-filter-replace-keyword-append '(:mykie-after-load ((global-map ("C-a" :default beginning-of-line)))))
+;;         | ;; =>
+;;         | (:eval-after-load ((mykie:define-key global-map "C-a" :default beginning-of-line)))
+;;         `----
+;;   `mic-deffilter-convert-after-load'
+;;         From an existing filter, define a new filter which outputs an
+;;         `:eval-after-load' keyword instead of `:eval'.  It is same as
+;;         `(mic-deffilter-replace-keyword-append name filter old-keyword
+;;         new-keyword '((:eval . :eval-after-load)))'.
+;;         ,----
+;;         | ;; Original filter: `mic-filter-mykie'
+;;         | (mic-filter-mykie '(:mykie ((global-map ("C-a" :default beginning-of-line)))))
+;;         | ;; =>
+;;         | (:eval ((mykie:define-key global-map "C-a" :default beginning-of-line)))
+;;         |
+;;         |
+;;         | (mic-deffilter-convert-after-load example-filter-convert-after-load
+;;         |   mic-filter-mykie
+;;         |   :mykie-after-load :mykie)
+;;         |
+;;         | ;; An input keyword and an output keyword is replaced
+;;         | (example-filter-convert-after-load '(:mykie-after-load ((global-map ("C-a" :default beginning-of-line)))))
+;;         | ;; =>
+;;         | (:eval-after-load ((mykie:define-key global-map "C-a" :default beginning-of-line)))
+;;         `----
+;;   `mic-deffilter-t-to-name'
+;;         Replace `t' with feature name in a list keyword.
+;;         ,----
+;;         | (mic-deffilter-t-to-name example-filter-t-to-name
+;;         |   :replace)
+;;         |
+;;         |  ;; :name keyword is needed in addition to :replace keyword
+;;         | (example-filter-t-to-name '(:name feature-name :replace (1 2 3 t 5 6 t)))
+;;         | ;; =>
+;;         | (:name feature-name :replace (1 2 3 feature-name 5 6 feature-name))
+;;         `----
+;;   `mic-deffilter-validate'
+;;         Return a recieved plist except that it validates and sieves
+;;         keyword in the plist to confirm the returned plist has no
+;;         invalid keywords.
+;;         ,----
+;;         | (mic-deffilter-validate example-filter-validate
+;;         |   :name :key1 :key2)
+;;         |
+;;         | (example-filter-validate '(:name feature-name :key1 "Hello" :key2 "Hi" :key3 "Bad" :key4 "Sad"))
+;;         | ;; =>
+;;         | (:name feature-name :key1 "Hello" :key2 "Hi")
+;;         | ;; In addition, warnings are displayed like:
+;;         | ;; Warning (Emacs): 'mic' feature-name: The keyword :key3 is not allowed by filter 'example-filter-validate'
+;;         | ;; Warning (Emacs): 'mic' feature-name: The keyword :key4 is not allowed by filter 'example-filter-validate'
+;;         `----
+
+
+;; 5.1.4 Define `mic' with the filter and `mic-defmic'
 ;; ---------------------------------------------------
 
 ;;   `mic-defmic' recieves arguments: `NAME', `PANRENT', optional
