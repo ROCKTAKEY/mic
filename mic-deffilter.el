@@ -194,7 +194,8 @@ KEYWORDS is a list of valid properties."
   (unless (stringp docstring)
     (push docstring keywords)
     (setq docstring nil))
-  (let ((result (make-symbol "result"))
+  (let ((temp-plist (make-symbol "temp-plist"))
+        (result (make-symbol "result"))
         (key (make-symbol "key"))
         (value (make-symbol "value")))
     `(defun ,name (plist)
@@ -207,10 +208,11 @@ The valid properties are:
        (concat "`" (symbol-name arg) "'"))
      keywords
      "\n")))
-       (let (,result)
-         (while plist
-           (let ((,key (pop plist))
-                 (,value (pop plist)))
+       (let ((,temp-plist plist)
+             ,result)
+         (while ,temp-plist
+           (let ((,key (pop ,temp-plist))
+                 (,value (pop ,temp-plist)))
              (if (not (memq ,key (append ',keywords '(:name))))
                  (warn "`mic' %s: The keyword %s is not allowed by filter `%s'" (plist-get plist :name) ,key ',name)
                (push ,key ,result)
