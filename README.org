@@ -1290,7 +1290,10 @@ Here is example:
     :filters
     '(my-filter-global-set-key-without-quote
       ;; You can add other filters below
-      ))
+      )
+    ;; You can comment out the line below to catch, warn and ignore errors.
+    ;; :error-protection? t
+    )
 
   ;; Then you can use `mymic' like:
   (mymic simple
