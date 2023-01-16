@@ -1127,6 +1127,55 @@ Each element of the value of the keyword is passed to =major-mode-hydra-define= 
          ("<left>" shrink-window-horizontally "shrink-window-horizontally"))))))
 #+end_src
 
+**** Alternative of filters
+
+***** Hook
+- =mic-filter-hook-quote=
+This is almost same as =mic-filter-hook=, but =cdr= of each element of the value should not be quoted.
+=:hook-quote= is used as keyword.
+
+*** Helper for defining a filter
+There are some helpers for defining a filter.
+
+**** Utilities
+Usually, a filter proceeds filtering by 4 steps:
+1. Get data on a specific keyword in =PLIST=
+2. Convert data to sexp
+3. Append the sexp to value on =:eval= in =PLIST=
+4. Delete the specific keyword from =PLIST=
+
+There are some macros to help step 3. and 4. in =mic-utils.el=.
+- =mic-plist-put-append=, which helps step 3., takes three arguments,
+  =PLIST=, =PROP=, which means keyword, and =VAL=.
+  It get a value on =PROP= in =PLIST=, and appends =VAL= to the value.
+- =mic-plist-delete=, which helps step 4., takes one obligatory argument =PLIST=,
+  and extra arguments =PROPS=.
+  It removes =PROPS= keywords from =PLIST= and return it.
+
+**** =deffilter=
+To define a simple filter or to modify an existing filter,
+you can use =mic-deffilter-*= macros in =mic-deffilter.el=.
+See each macro definition and docstring for more information.
+
+- =mic-deffilter-alias= :: Induce alias keyword.
+  #+begin_src emacs-lisp :tangle yes
+    (mic-deffilter-alias example-filter-alias :alias :origin)
+
+    (example-filter-alias '(:alias "Hello"))
+    ;; =>
+    (:origin "Hello")
+  #+end_src
+- =mic-deffilter-const= :: Put constant value on keyword.
+  #+begin_src emacs-lisp :tangle yes
+    (mic-deffilter-const example-filter-const
+      "Optional docstring."
+      :eval '((message "Hello")))
+
+    (example-filter-const '(:other-keyword "Hi"))
+    ;; =>
+    (:other-keyword "Hi" :eval ((message "Hello")))
+  #+end_src
+
 *** Define =mic= with the filter and =mic-defmic=
 =mic-defmic= recieves arguments: =NAME=, =PANRENT=, optional =DOCSTRING=, keyword argument =FILTERS=.
 =NAME= is your new =mic= macro name. =PARENT= is parent =mic=, which recieves =RETURNED-PLIST= at last.
