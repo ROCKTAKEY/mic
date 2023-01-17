@@ -1,4 +1,4 @@
-;;; mic.el --- Minimal configuration manager  -*- lexical-binding: t; -*-
+;;; mic.el --- Minimal and combinable configuration manager  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2022  ROCKTAKEY
 
@@ -27,7 +27,7 @@
 ;; Table of Contents
 ;; _________________
 
-;; 1. mic: Minimal configuration manager for Emacs
+;; 1. mic: Minimal and combinable configuration manager for Emacs
 ;; 2. How to Use?
 ;; 3. Use `mic-core', minimum one
 ;; .. 1. `:eval', `:eval-after-others', `:eval-before-all'
@@ -75,18 +75,19 @@
 ;; <https://github.com/ROCKTAKEY/mic/actions>
 
 
-;; 1 mic: Minimal configuration manager for Emacs
-;; ==============================================
+;; 1 mic: Minimal and combinable configuration manager for Emacs
+;; =============================================================
 
 ;;         `mic' is uncustomizable.  Define your own `mic'.
 
-;;   `mic' is minimal configuration manager for Emacs.  This package is yet
-;;   another `use-package' and `leaf', but is also used with them (See
-;;   [Alternative]).  `mic' is minimal, so if you would like to write
-;;   complex configuration, `mic' is a little redundant.  However, there is
-;;   no problem.  `mic' is thought to be used to core to define your own,
-;;   another, more convenient `mic'.  There are some functions to define
-;;   your own `mic'.  See [Define your own mic].
+;;   `mic' is minimal and combinable configuration manager for Emacs.  This
+;;   package is yet another `use-package' and `leaf', but is also used with
+;;   them (See [Alternative]).  `mic' is minimal, so if you would like to
+;;   write complex configuration, `mic' is a little redundant.  However,
+;;   there is no problem.  `mic' is combinable, in the other words, thought
+;;   to be used as core to define your own, and more convenient `mic'.
+;;   There are some functions to define your own `mic'.  See [Define your
+;;   own mic].
 
 
 ;; [Alternative] See section 6
@@ -1688,7 +1689,7 @@
 (require 'mic-utils)
 
 (defgroup mic ()
-  "Minimal configuration manager."
+  "Minimal and combinable configuration manager."
   :group 'convenience
   :prefix "mic-"
   :link '(url-link "https://github.com/ROCKTAKEY/mic"))
