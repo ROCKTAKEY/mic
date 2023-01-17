@@ -49,7 +49,7 @@
 ;; ..... 1. What is a filter?
 ;; ..... 2. Pre-defined filters
 ;; ..... 3. Helper for defining a filter
-;; ..... 4. Define `mic' with the filter and `mic-defmic'
+;; ..... 4. Define `mic' with `mic-defmic'
 ;; .. 2. Define your own `mic' with `defmacro'
 ;; 6. Alternative
 ;; 7. Contribute
@@ -945,7 +945,7 @@
 ;;   |     (mic-plist-delete plist :bind)
 ;;   |     plist))
 ;;   |
-;;   | ;; `defmic' defines new `mic' (see "Define mic with the filter and mic-defmic" section for more infomation)
+;;   | ;; `defmic' defines new `mic' (see "Define mic with mic-defmic" section for more infomation)
 ;;   | (mic-defmic yourmic
 ;;   |   mic                                   ; Derived from `mic'
 ;;   |   :filters '(my-filter-global-set-key-without-quote))
@@ -1494,8 +1494,8 @@
 ;;         `----
 
 
-;; 5.1.4 Define `mic' with the filter and `mic-defmic'
-;; ---------------------------------------------------
+;; 5.1.4 Define `mic' with `mic-defmic'
+;; ------------------------------------
 
 ;;   `mic-defmic' recieves arguments: `NAME', `PANRENT', optional
 ;;   `DOCSTRING', keyword argument `FILTERS'.  `NAME' is your new `mic'
@@ -1543,6 +1543,93 @@
 ;;   When you would like to use `mic-core' as `PARENT',
 ;;   `mic-filter-core-validate' is useful to validate plist.  *Please put
 ;;   it tail of `FILTERS' if you use it.*
+
+
+;; * 5.1.4.1 Error protection
+
+;;   If you want your `mic' to catch, warn and dismiss errors and to
+;;   continue evaluation, set `:error-protection?' `t'.
+;;   ,----
+;;   | (mic-defmic mymic-with-error-protection
+;;   |   ;; Parent is here.  You can also use `mic-core'.
+;;   |   mic
+;;   |   :filters
+;;   |   '(my-filter-global-set-key-without-quote)
+;;   |   :error-protection? t)
+;;   |
+;;   | (mymic-with-error-protection simple
+;;   |   :bind
+;;   |   (("C-d" . delete-forward-char)
+;;   |    ("C-x l" . toggle-truncate-lines))
+;;   |   ;; Of course parent keywords are accepted.
+;;   |   :custom
+;;   |   ((kill-whole-line . t)
+;;   |    (set-mark-command-repeat-pop . t)
+;;   |    (mark-ring-max . 50)))
+;;   |
+;;   | ;; Expanded to:
+;;   | (condition-case-unless-debug error      ; Catch error
+;;   |     (mic simple
+;;   |       :custom
+;;   |       ((kill-whole-line . t)
+;;   |        (set-mark-command-repeat-pop . t)
+;;   |        (mark-ring-max . 50))
+;;   |       :eval
+;;   |       ((global-set-key (kbd "C-d") (function delete-forward-char))
+;;   |        (global-set-key (kbd "C-x l") (function toggle-truncate-lines))))
+;;   |   ;; Warn caught error but continue evaluation
+;;   |   (error
+;;   |    (warn "`%s' %s: evaluation error: %s" 'mymic-with-error-protection 'simple
+;;   |          (error-message-string error))))
+;;   `----
+
+
+;; * 5.1.4.2 Adopt a parent other than `mic', `mic-core' and its derivation
+
+;;   You can use other configuration managers, such as [use-package] and
+;;   [leaf.el].  However, filters defined by `mic' output keyword for `mic'
+;;   family, such as `:eval', `:eval-after-load'.  So you should tell
+;;   `mic-defmic' how to adapt outputs to its parent by `:adapter' option.
+;;   The adapter takes one argument `PLIST', and returns a list to pass to
+;;   the parent.
+
+;;   Two adapter are pre-defined:
+;;   `mic-adapter-use-package'
+;;         Adapter for `use-package'.
+;;   `mic-adapter-leaf'
+;;         Adapter for `leaf'.
+
+;;   ,----
+;;   | (mic-defmic mic-with-use-package use-package
+;;   |   :filters '(mic-filter-define-key-with-feature)
+;;   |   :adapter #'mic-adapter-use-package)
+;;   |
+;;   | (mic-with-use-package feature-name
+;;   |   :define-key-with-feature
+;;   |   ((org
+;;   |     (org-mode-map
+;;   |      ("M-a" . #'feature-name-command))))
+;;   |   ;; You can use `use-package' feature
+;;   |   :bind
+;;   |   (("M-a" . beginning-of-defun)
+;;   |    ("M-e" . end-of-defun)))
+;;   |
+;;   | ;; Expanded to:
+;;   | (use-package feature-name
+;;   |   :bind
+;;   |   (("M-a" . beginning-of-defun)
+;;   |    ("M-e" . end-of-defun))
+;;   |   ;; :defer is needed to wrap :config section around `eval-after-load'
+;;   |   :defer t
+;;   |   :init
+;;   |   (with-eval-after-load 'org
+;;   |     (define-key org-mode-map (kbd "M-a") (function feature-name-command))))
+;;   `----
+
+
+;;   [use-package] <https://github.com/jwiegley/use-package>
+
+;;   [leaf.el] <https://github.com/conao3/leaf.el>
 
 
 ;; 5.2 Define your own `mic' with `defmacro'
