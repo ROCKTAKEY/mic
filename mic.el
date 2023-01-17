@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.34.1
+;; Version: 0.34.2
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -1661,7 +1661,7 @@ Argument NAME, PLIST. Used filters are:
                      "\n")))
        (declare (indent defun))
        ,@(if error-protection?
-             `((condition-case error
+             `((condition-case-unless-debug error
                    (mic-apply-filter plist name
                      ,@filters)
                  (error
@@ -1670,7 +1670,7 @@ Argument NAME, PLIST. Used filters are:
                ,(let ((error (make-symbol "error")))
                   `(backquote
                     ,(list
-                      'condition-case error
+                      'condition-case-unless-debug error
                       (list
                        parent
                        ',name
