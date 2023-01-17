@@ -1,4 +1,4 @@
-;;; mic-adapter.el --- Adapters for mic
+;;; mic-adapter.el --- Adapters for mic  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2023 by ROCKTAKEY
 
