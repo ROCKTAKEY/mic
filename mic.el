@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.34.3
+;; Version: 0.34.4
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -1741,13 +1741,24 @@ PLIST is filtered by each FILTERS in order and passed to PARENT.
     `(defmacro ,name (name &rest plist)
        ,(or docstring
             (format "`mic' alternative defined by `mic-defmic'.
-Argument NAME, PLIST. Used filters are:
-%s"
+Argument NAME, PLIST.
+
+Information:
+- Filters:
+%s
+- Parent: `%s'
+- Error protection: %s
+- Adapter: `%s'
+
+For more information, see `mic-defmic'."
                     (mapconcat
                      (lambda (arg)
-                       (concat "- `" (pp-to-string arg) "'"))
+                       (concat "  - `" (pp-to-string arg) "'"))
                      filters
-                     "\n")))
+                     "\n")
+                    parent
+                    error-protection?
+                    adapter))
        (declare (indent defun))
        ,@(if error-protection?
              `((condition-case-unless-debug error
