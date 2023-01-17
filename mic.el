@@ -1645,7 +1645,7 @@
 ;; 6 Alternative
 ;; =============
 
-;;   There is some alternative:
+;;   There are some alternatives:
 ;;   - [`use-package']
 ;;   - [`leaf']
 
@@ -1655,7 +1655,8 @@
 
 ;;   In addition, they are customizable, while `mic' is not customizable,
 ;;   but re-definable.  You can define your own `mic' according to your
-;;   preference, with `mic' help.
+;;   preference, with `mic' help.  Of course you can define your own `mic'
+;;   with `use-package' or `leaf' as backend.
 
 
 ;; [`use-package'] <https://github.com/jwiegley/use-package>

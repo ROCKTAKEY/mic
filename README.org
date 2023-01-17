@@ -1404,7 +1404,7 @@ I am looking forward to seeing your =mic= defined by =defmacro=!
 :PROPERTIES:
 :CUSTOM_ID: alternative
 :END:
-There is some alternative:
+There are some alternatives:
 - [[https://github.com/jwiegley/use-package][=use-package=]]
 - [[https://github.com/conao3/leaf.el][=leaf=]]
 
@@ -1414,6 +1414,7 @@ It is just your preference.
 
 In addition, they are customizable, while =mic= is not customizable, but re-definable.
 You can define your own =mic= according to your preference, with =mic= help.
+Of course you can define your own =mic= with =use-package= or =leaf= as backend.
 
 * Contribute
 When you think you would like to share your filter or your own =mic=, use GitHub Discussion.
