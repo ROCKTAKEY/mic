@@ -46,15 +46,18 @@ It takes one argument PLIST, and transforms it into `use-package' sexp."
                       :defer)
     `(,@rest-plist
       :defer ,(if (plist-member plist :defer) (plist-get plist :defer) t)
-      :preface
-      ,@eval-before-all
-      ,@eval-installation
-      :init
-      ,@eval
-      ,@eval-after-others
-      :config
-      ,@eal
-      ,@eval-after-others-after-load)))
+      ,@(when (or eval-before-all eval-installation)
+          `(:preface
+            ,@eval-before-all
+            ,@eval-installation))
+      ,@(when (or eval eval-after-others)
+          `(:init
+            ,@eval
+            ,@eval-after-others))
+      ,@(when (or eal eval-after-others-after-load)
+          `(:config
+            ,@eal
+            ,@eval-after-others-after-load)))))
 
 (defun mic-adapter-leaf (plist)
   "An adapter from `mic-core'-like input PLIST to `leaf'.
@@ -75,17 +78,21 @@ It takes one argument PLIST, and transforms it into `leaf' sexp."
                       :eval-before-all
                       :eval-installation)
     `(,@rest-plist
-      :preface
-      ,@eval-before-all
-      ,@eval-installation
-      :init
-      ,@eval
-      ,@eval-after-others
-      ;; Sometimes :config is not wrapped around `with-eval-after-load',
-      ;; so use :defer-config instead.
-      :defer-config
-      ,@eal
-      ,@eval-after-others-after-load)))
+      ,@(when (or eval-before-all eval-installation)
+          `(:preface
+            ,@eval-before-all
+            ,@eval-installation))
+      ,@(when (or eval eval-after-others)
+          `(:init
+            ,@eval
+            ,@eval-after-others))
+      ,@(when (or eal eval-after-others-after-load)
+          `(
+            ;; Sometimes :config is not wrapped around `with-eval-after-load',
+            ;; so use :defer-config instead.
+            :defer-config
+            ,@eal
+            ,@eval-after-others-after-load)))))
 
 (provide 'mic-adapter)
 
