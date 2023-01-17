@@ -353,7 +353,7 @@ The test defined by this expands macro twice."
        (mic-apply-filter plist name
          filter1 filter2)
        (backquote
-        (parent-name ,name ,@plist))))
+        (parent-name ,name ,@(identity plist)))))
   ((mic-defmic macro-name parent-name
      :filters '(filter1 filter2))
    . (defmacro macro-name (name &rest plist)
@@ -365,7 +365,9 @@ Argument NAME, PLIST. Used filters are:
        (mic-apply-filter plist name
          filter1 filter2)
        (backquote
-        (parent-name ,name ,@plist)))))
+        (parent-name ,name ,@(identity plist))))))
+
+
 
 (mic-deffilter-const-append mic-test-filter-const-1
     :foo '(1)
@@ -389,6 +391,38 @@ Argument NAME, PLIST. Used filters are:
                   (456 2 3)
                   :baz
                   (6 7))))
+
+(mic-defmic mic-test-mic-defmic-adapter parent-name
+  :filters '(mic-test-filter-const-1 mic-test-filter-const-2)
+  :adapter
+  (lambda (plist)
+    "Replace :foo with :hoge in PLIST.
+Then, duplicate value on :bar."
+    (let (result)
+      (while plist
+        (let ((key (pop plist))
+              (value (pop plist)))
+          (when (eq key :foo)
+            (setq key :hoge))
+          (push key result)
+          (push value result)
+          (when (eq key :bar)
+            (push value result))))
+      (nreverse result))))
+
+(mic-ert-macroexpand-1 mic-defmic-adapter
+  ((mic-test-mic-defmic-adapter feature-name
+     :foo (123)
+     :bar (456))
+   . (parent-name feature-name
+                  :hoge
+                  (123 1 4 5)
+                  :bar
+                  (456 2 3)
+                  (456 2 3)
+                  :baz
+                  (6 7))))
+
 
 (provide 'mic-test)
 ;;; mic-test.el ends here

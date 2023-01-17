@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.33.0
+;; Version: 0.34.0
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -1631,13 +1631,13 @@ Otherwise, when errors occur, loading your init.el stops.
 The defined macro recieves two arguments, NAME and PLIST.
 PLIST is filtered by each FILTERS in order and passed to PARENT.
 
-\(fn NAME PARENT [DOCSTRING] &key FILTERS ERROR-PROTECTION?)"
+\(fn NAME PARENT [DOCSTRING] &key FILTERS ERROR-PROTECTION? ADAPTER)"
   (declare (indent defun)
            (doc-string 2))
   (unless (stringp docstring)
     (push docstring plist)
     (setq docstring nil))
-  (let ((allowed-keywords '(:filters :error-protection?))
+  (let ((allowed-keywords '(:filters :error-protection? :adapter))
         (plist plist)
         key)
     (while (setq key (pop plist))
@@ -1646,7 +1646,9 @@ PLIST is filtered by each FILTERS in order and passed to PARENT.
         (error "Keyword %s is not allowed in `mic-defmic'" key))))
 
   (let* ((filters (eval (plist-get plist :filters)))
-         (error-protection? (eval (plist-get plist :error-protection?))))
+         (error-protection? (eval (plist-get plist :error-protection?)))
+         (adapter (or (eval (plist-get plist :adapter))
+                      #'identity)))
     `(defmacro ,name (name &rest plist)
        ,(or docstring
             (format "`mic' alternative defined by `mic-defmic'.
@@ -1672,7 +1674,9 @@ Argument NAME, PLIST. Used filters are:
                       (list
                        parent
                        ',name
-                       ',@plist)
+                       (list
+                        '\,@
+                        `(,adapter plist)))
                       `(error
                         ,(list
                           'warn "`%s' %s: evaluation error: %s"
@@ -1684,7 +1688,9 @@ Argument NAME, PLIST. Used filters are:
               ,(list
                 parent
                 ',name
-                ',@plist)))))))
+                (list
+                 '\,@
+                 `(,adapter plist)))))))))
 
 
 
