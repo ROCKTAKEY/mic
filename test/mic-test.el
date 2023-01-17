@@ -358,12 +358,19 @@ The test defined by this expands macro twice."
      :filters '(filter1 filter2))
    . (defmacro macro-name (name &rest plist)
        "`mic' alternative defined by `mic-defmic'.
-Argument NAME, PLIST. Used filters are:
-- `filter1'
-- `filter2'"
+Argument NAME, PLIST.
+
+Information:
+- Filters:
+  - `filter1'
+  - `filter2'
+- Parent: `parent-name'
+- Error protection: nil
+- Adapter: `identity'
+
+For more information, see `mic-defmic'."
        (declare (indent defun))
-       (mic-apply-filter plist name
-         filter1 filter2)
+       (mic-apply-filter plist name filter1 filter2)
        (backquote
         (parent-name ,name ,@(identity plist))))))
 
