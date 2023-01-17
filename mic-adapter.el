@@ -29,7 +29,8 @@
   "An adapter from `mic-core'-like input PLIST to `use-package'.
 It takes one argument PLIST, and transforms it into `use-package' sexp."
   (let ((eval (plist-get plist :eval))
-        (eval-after-load (plist-get plist :eval-after-load))
+        ;; Variable named `eval-after-load' is warned by `package-lint', so use `eal' instead.
+        (eal (plist-get plist :eval-after-load))
         (eval-after-others (plist-get plist :eval-after-others))
         (eval-after-others-after-load (plist-get plist :eval-after-others-after-load))
         (eval-before-all (plist-get plist :eval-before-all))
@@ -52,14 +53,15 @@ It takes one argument PLIST, and transforms it into `use-package' sexp."
       ,@eval
       ,@eval-after-others
       :config
-      ,@eval-after-load
+      ,@eal
       ,@eval-after-others-after-load)))
 
 (defun mic-adapter-leaf (plist)
   "An adapter from `mic-core'-like input PLIST to `leaf'.
 It takes one argument PLIST, and transforms it into `leaf' sexp."
   (let ((eval (plist-get plist :eval))
-        (eval-after-load (plist-get plist :eval-after-load))
+        ;; Variable named `eval-after-load' is warned by `package-lint', so use `eal' instead.
+        (eal (plist-get plist :eval-after-load))
         (eval-after-others (plist-get plist :eval-after-others))
         (eval-after-others-after-load (plist-get plist :eval-after-others-after-load))
         (eval-before-all (plist-get plist :eval-before-all))
@@ -82,7 +84,7 @@ It takes one argument PLIST, and transforms it into `leaf' sexp."
       ;; Sometimes :config is not wrapped around `with-eval-after-load',
       ;; so use :defer-config instead.
       :defer-config
-      ,@eval-after-load
+      ,@eal
       ,@eval-after-others-after-load)))
 
 (provide 'mic-adapter)
