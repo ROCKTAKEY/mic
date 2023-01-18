@@ -32,6 +32,7 @@
             (:send-report nil))
 
 (require 'mic)
+(require 'mic-utils)
 
 (defmacro mic-ert-macroexpand-1 (name &rest args)
   "Define test named NAME.
@@ -433,6 +434,31 @@ Then, duplicate value on :bar."
                   :baz
                   (6 7))))
 
+(mic-defmic mic-test-mic-defmic-inputter parent-name
+  :inputter
+  (lambda (input)
+    "Replace :foo with :hoge in PLIST.
+Then, duplicate value on :bar."
+    (let (result key)
+      (while input
+        (let ((now (pop input)))
+          (if (keywordp now)
+              (setq key now)
+            (if (eq key :foo)
+                (mic-plist-put-append result key (list now))
+              (mic-plist-put result key now)))))
+      result)))
+
+(mic-ert-macroexpand-1 mic-defmic-inputter
+  ((mic-test-mic-defmic-inputter feature-name
+     :foo 123
+     :bar (456)
+     :foo 789 101)
+   . (parent-name feature-name
+                  :foo
+                  (123 789 101)
+                  :bar
+                  (456))))
 
 (provide 'mic-test)
 ;;; mic-test.el ends here
