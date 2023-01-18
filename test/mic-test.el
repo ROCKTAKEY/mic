@@ -441,7 +441,7 @@ Then, duplicate value on :bar."
     "Take PSUDO-PLIST.
 :foo is allowed to be append."
     (let (result key)
-      (while input
+      (while psudo-plist
         (let ((now (pop psudo-plist)))
           (if (keywordp now)
               (setq key now)
