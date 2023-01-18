@@ -347,18 +347,19 @@ The test defined by this expands macro twice."
   ((mic-defmic macro-name parent-name
      "docstring"
      :filters '(filter1 filter2))
-   . (defmacro macro-name (name &rest plist)
+   . (defmacro macro-name (feature-name &rest input)
        "docstring"
        (declare (indent defun))
-       (mic-apply-filter plist name
-         filter1 filter2)
-       (backquote
-        (parent-name ,name ,@(identity plist)))))
+       (let ((plist (identity input)))
+         (mic-apply-filter plist feature-name
+           filter1 filter2)
+         (backquote
+          (parent-name ,feature-name ,@(identity plist))))))
   ((mic-defmic macro-name parent-name
      :filters '(filter1 filter2))
-   . (defmacro macro-name (name &rest plist)
+   . (defmacro macro-name (feature-name &rest input)
        "`mic' alternative defined by `mic-defmic'.
-Argument NAME, PLIST.
+Configure about FEATURE-NAME by INPUT.
 
 Information:
 - Filters:
@@ -367,12 +368,14 @@ Information:
 - Parent: `parent-name'
 - Error protection: nil
 - Adapter: `identity'
+- Inputter: `identity'
 
 For more information, see `mic-defmic'."
        (declare (indent defun))
-       (mic-apply-filter plist name filter1 filter2)
-       (backquote
-        (parent-name ,name ,@(identity plist))))))
+       (let ((plist (identity input)))
+         (mic-apply-filter plist feature-name filter1 filter2)
+         (backquote
+          (parent-name ,feature-name ,@(identity plist)))))))
 
 
 
