@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.35.0
+;; Version: 0.35.1
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -1784,7 +1784,7 @@ For more information, see `mic-defmic'."
                       'condition-case-unless-debug error
                       (list
                        parent
-                       ',name
+                       ',feature-name
                        (list
                         '\,@
                         `(,adapter plist)))

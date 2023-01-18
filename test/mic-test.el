@@ -403,6 +403,29 @@ For more information, see `mic-defmic'."
                   :baz
                   (6 7))))
 
+(mic-defmic mic-test-mic-defmic-error-protection parent-name
+  :filters '(mic-test-filter-const-1 mic-test-filter-const-2)
+  :error-protection? t)
+
+(ert-deftest mic-defmic-error-protection ()
+  (should
+   (pcase (macroexpand-1
+           '(mic-test-mic-defmic-error-protection feature-name
+              :foo (123)
+              :bar (456)))
+     (`(condition-case-unless-debug ,error
+           (parent-name feature-name :foo
+                        (123 1 4 5)
+                        :bar
+                        (456 2 3)
+                        :baz
+                        (6 7))
+         (error
+          (warn "`%s' %s: evaluation error: %s" 'mic-test-mic-defmic-error-protection 'feature-name
+                (error-message-string ,error))))
+      t)
+     (_ nil))))
+
 (mic-defmic mic-test-mic-defmic-adapter parent-name
   :filters '(mic-test-filter-const-1 mic-test-filter-const-2)
   :adapter
