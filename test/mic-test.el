@@ -32,6 +32,7 @@
             (:send-report nil))
 
 (require 'mic)
+(require 'mic-utils)
 
 (defmacro mic-ert-macroexpand-1 (name &rest args)
   "Define test named NAME.
@@ -347,18 +348,19 @@ The test defined by this expands macro twice."
   ((mic-defmic macro-name parent-name
      "docstring"
      :filters '(filter1 filter2))
-   . (defmacro macro-name (name &rest plist)
+   . (defmacro macro-name (feature-name &rest input)
        "docstring"
        (declare (indent defun))
-       (mic-apply-filter plist name
-         filter1 filter2)
-       (backquote
-        (parent-name ,name ,@(identity plist)))))
+       (let ((plist (identity input)))
+         (mic-apply-filter plist feature-name
+           filter1 filter2)
+         (backquote
+          (parent-name ,feature-name ,@(identity plist))))))
   ((mic-defmic macro-name parent-name
      :filters '(filter1 filter2))
-   . (defmacro macro-name (name &rest plist)
+   . (defmacro macro-name (feature-name &rest input)
        "`mic' alternative defined by `mic-defmic'.
-Argument NAME, PLIST.
+Configure about FEATURE-NAME by INPUT.
 
 Information:
 - Filters:
@@ -367,12 +369,14 @@ Information:
 - Parent: `parent-name'
 - Error protection: nil
 - Adapter: `identity'
+- Inputter: `identity'
 
 For more information, see `mic-defmic'."
        (declare (indent defun))
-       (mic-apply-filter plist name filter1 filter2)
-       (backquote
-        (parent-name ,name ,@(identity plist))))))
+       (let ((plist (identity input)))
+         (mic-apply-filter plist feature-name filter1 filter2)
+         (backquote
+          (parent-name ,feature-name ,@(identity plist)))))))
 
 
 
@@ -430,6 +434,34 @@ Then, duplicate value on :bar."
                   :baz
                   (6 7))))
 
+(mic-defmic mic-test-mic-defmic-inputter parent-name
+  :filters '(mic-test-filter-const-1 mic-test-filter-const-2)
+  :inputter
+  (lambda (psudo-plist)
+    "Take PSUDO-PLIST.
+:foo is allowed to be append."
+    (let (result key)
+      (while psudo-plist
+        (let ((now (pop psudo-plist)))
+          (if (keywordp now)
+              (setq key now)
+            (if (eq key :foo)
+                (mic-plist-put-append result key (list now))
+              (mic-plist-put result key now)))))
+      result)))
+
+(mic-ert-macroexpand-1 mic-defmic-inputter
+  ((mic-test-mic-defmic-inputter feature-name
+     :foo 123
+     :bar (456)
+     :foo 789 101)
+   . (parent-name feature-name
+                  :foo
+                  (123 789 101 1 4 5)
+                  :bar
+                  (456 2 3)
+                  :baz
+                  (6 7))))
 
 (provide 'mic-test)
 ;;; mic-test.el ends here

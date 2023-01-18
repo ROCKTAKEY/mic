@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.34.4
+;; Version: 0.35.0
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -1707,9 +1707,10 @@ NAME is temporarily added to PLIST on :name property."
      (mic-plist-delete ,plist :name)))
 
 ;;;###autoload
-(defmacro mic-defmic (name parent docstring &rest plist)
+(defmacro mic-defmic (name parent docstring &rest definition-plist)
   "Define new `mic' named NAME derived from PARENT.
-DOCSTRING is docuent of it.
+DOCSTRING is docuent of it, and DEFINITION-PLIST is main definition.
+
 FILTERS is list of filter, which recieve plist and return plist.
 The recieved plist has property `:name', which is package name.
 It also has other properties from other filter before.
@@ -1720,28 +1721,30 @@ Otherwise, when errors occur, loading your init.el stops.
 The defined macro recieves two arguments, NAME and PLIST.
 PLIST is filtered by each FILTERS in order and passed to PARENT.
 
-\(fn NAME PARENT [DOCSTRING] &key FILTERS ERROR-PROTECTION? ADAPTER)"
+\(fn NAME PARENT [DOCSTRING] &key FILTERS ERROR-PROTECTION? ADAPTER INPUTTER)"
   (declare (indent defun)
            (doc-string 2))
   (unless (stringp docstring)
-    (push docstring plist)
+    (push docstring definition-plist)
     (setq docstring nil))
-  (let ((allowed-keywords '(:filters :error-protection? :adapter))
-        (plist plist)
+  (let ((allowed-keywords '(:filters :error-protection? :adapter :inputter))
+        (temp-plist definition-plist)
         key)
-    (while (setq key (pop plist))
-      (pop plist)
+    (while (setq key (pop temp-plist))
+      (pop temp-plist)
       (unless (memq key allowed-keywords)
         (error "Keyword %s is not allowed in `mic-defmic'" key))))
 
-  (let* ((filters (eval (plist-get plist :filters)))
-         (error-protection? (eval (plist-get plist :error-protection?)))
-         (adapter (or (eval (plist-get plist :adapter))
-                      #'identity)))
-    `(defmacro ,name (name &rest plist)
+  (let* ((filters (eval (plist-get definition-plist :filters)))
+         (error-protection? (eval (plist-get definition-plist :error-protection?)))
+         (adapter (or (eval (plist-get definition-plist :adapter))
+                      #'identity))
+         (inputter (or (eval (plist-get definition-plist :inputter))
+                       #'identity)))
+    `(defmacro ,name (feature-name &rest input)
        ,(or docstring
             (format "`mic' alternative defined by `mic-defmic'.
-Argument NAME, PLIST.
+Configure about FEATURE-NAME by INPUT.
 
 Information:
 - Filters:
@@ -1749,6 +1752,7 @@ Information:
 - Parent: `%s'
 - Error protection: %s
 - Adapter: `%s'
+- Inputter: `%s'
 
 For more information, see `mic-defmic'."
                     (mapconcat
@@ -1758,15 +1762,22 @@ For more information, see `mic-defmic'."
                      "\n")
                     parent
                     error-protection?
-                    adapter))
+                    adapter
+                    inputter))
        (declare (indent defun))
-       ,@(if error-protection?
-             `((condition-case-unless-debug error
-                   (mic-apply-filter plist name
+       ,(if error-protection?
+            `(let ((plist
+                    (condition-case-unless-debug error
+                        (,inputter input)
+                      (error
+                       (warn "`%s' %s: inputter %s error: %s"
+                             ',name feature-name ',inputter (error-message-string error))))))
+               (condition-case-unless-debug error
+                   (mic-apply-filter plist feature-name
                      ,@filters)
                  (error
                   (warn "`%s' %s: macro expansion error: %s"
-                        ',name name (error-message-string error))))
+                        ',name feature-name (error-message-string error))))
                ,(let ((error (make-symbol "error")))
                   `(backquote
                     ,(list
@@ -1780,14 +1791,15 @@ For more information, see `mic-defmic'."
                       `(error
                         ,(list
                           'warn "`%s' %s: evaluation error: %s"
-                          `',name '',name
+                          `',name '',feature-name
                           `(error-message-string ,error)))))))
-           `((mic-apply-filter plist name
+          `(let ((plist (,inputter input)))
+             (mic-apply-filter plist feature-name
                ,@filters)
              (backquote
               ,(list
                 parent
-                ',name
+                ',feature-name
                 (list
                  '\,@
                  `(,adapter plist)))))))))
