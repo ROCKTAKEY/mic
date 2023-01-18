@@ -435,13 +435,14 @@ Then, duplicate value on :bar."
                   (6 7))))
 
 (mic-defmic mic-test-mic-defmic-inputter parent-name
+  :filters '(mic-test-filter-const-1 mic-test-filter-const-2)
   :inputter
-  (lambda (input)
-    "Replace :foo with :hoge in PLIST.
-Then, duplicate value on :bar."
+  (lambda (psudo-plist)
+    "Take PSUDO-PLIST.
+:foo is allowed to be append."
     (let (result key)
       (while input
-        (let ((now (pop input)))
+        (let ((now (pop psudo-plist)))
           (if (keywordp now)
               (setq key now)
             (if (eq key :foo)
@@ -456,9 +457,11 @@ Then, duplicate value on :bar."
      :foo 789 101)
    . (parent-name feature-name
                   :foo
-                  (123 789 101)
+                  (123 789 101 1 4 5)
                   :bar
-                  (456))))
+                  (456 2 3)
+                  :baz
+                  (6 7))))
 
 (provide 'mic-test)
 ;;; mic-test.el ends here
