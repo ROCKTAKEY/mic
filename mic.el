@@ -1328,10 +1328,21 @@
 
 ;;   + 5.1.2.3.1 Hook
 
-;;     - `mic-filter-hook-quote'
-;;     This is almost same as `mic-filter-hook', but `cdr' of each element
-;;     of the value should not be quoted.  `:hook-quote' is used as
-;;     keyword.
+;;     `mic-filter-hook-list'
+;;           This is almost same as `mic-filter-hook', but `car' of each
+;;           element of the value should be list of hook, and the `cdr'
+;;           should be list of function (should be quoted).  `:hook-list'
+;;           is used as keyword.
+;;     `mic-filter-hook-list-maybe'
+;;           This is almost same as `mic-filter-hook', but `car' of each
+;;           element of the value should be list of hook or just one hook,
+;;           and the `cdr' should be list of function or just one function
+;;           (should *NOT* be quoted).  `:hook-list-maybe' is used as
+;;           keyword.
+;;     `mic-filter-hook-quote'
+;;           This is almost same as `mic-filter-hook', but `cdr' of each
+;;           element of the value should not be quoted.  `:hook-quote' is
+;;           used as keyword.
 
 
 ;; 5.1.3 Helper for defining a filter
