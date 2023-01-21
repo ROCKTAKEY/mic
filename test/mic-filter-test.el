@@ -36,6 +36,32 @@
 
 (require 'mic-filter)
 
+(ert-deftest mic-filter-hook-list ()
+  (should (equal
+           (mic-filter-hook-list
+            '(:hook-list (((after-init-hook before-init-hook) . (#'func1 #'func2))
+                          ((switch-buffer-hook lsp-mode-hook) . ((lambda () 1) #'func3)))))
+           '(:eval ((add-hook 'after-init-hook #'func1)
+                    (add-hook 'after-init-hook #'func2)
+                    (add-hook 'before-init-hook #'func1)
+                    (add-hook 'before-init-hook #'func2)
+                    (add-hook 'switch-buffer-hook (lambda () 1))
+                    (add-hook 'switch-buffer-hook #'func3)
+                    (add-hook 'lsp-mode-hook (lambda () 1))
+                    (add-hook 'lsp-mode-hook #'func3))))))
+
+(ert-deftest mic-filter-hook-list-maybe ()
+  (should (equal
+           (mic-filter-hook-list-maybe
+            '(:hook-list-maybe (((after-init-hook before-init-hook) . (func1 func2))
+                                ((switch-buffer-hook lsp-mode-hook) .  func3))))
+           '(:eval ((add-hook 'after-init-hook #'func1)
+                    (add-hook 'after-init-hook #'func2)
+                    (add-hook 'before-init-hook #'func1)
+                    (add-hook 'before-init-hook #'func2)
+                    (add-hook 'switch-buffer-hook #'func3)
+                    (add-hook 'lsp-mode-hook #'func3))))))
+
 (ert-deftest mic-filter-hook-quote ()
   (should (equal
            (mic-filter-hook-quote
