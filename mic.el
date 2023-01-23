@@ -1596,7 +1596,53 @@
 ;;   `----
 
 
-;; * 5.1.4.2 Adopt a parent other than `mic', `mic-core' and its derivation
+;; * 5.1.4.2 Accept non-plist input
+
+;;   Like `use-package' and `leaf', you can define `mic' which accepts
+;;   non-plist input.  If you want to do so, you should pass `:inputter'
+;;   argument to `mic-defmic'.  `INPUTTER' is a function which takes one
+;;   argument `INPUT', and transform it into `PLIST' as returned value.
+
+;;   Simply, you can use `mic-definputter-pseudo-plist' defined in
+;;   <file:mic-definputter.el> to define inputter like `use-package' or
+;;   `leaf'.  it takes two arguments `NAME' and `LISTIZED-KEYWORDS'.  `NAME'
+;;   is a name of the inputter function, and `LISTIZED-KEYWORDS' is list of
+;;   keyword whose value can be passed multiple times.
+;;   ,----
+;;   | (mic-definputter-pseudo-plist my-inputter
+;;   |   '(:eval :eval-after-load :define-key))
+;;   |
+;;   | (mic-defmic mymic-with-inputter mic
+;;   |   :inputter #'my-inputter)
+;;   |
+;;   | (mymic-with-inputter feature-name
+;;   |   :eval
+;;   |   ;; Like `use-package', you can put multiple sexps after :eval, instead of list of sexp
+;;   |   (message "Hello")
+;;   |   (message "Good bye")
+;;   |
+;;   |   :eval-after-load
+;;   |   (message "Hello, after load")
+;;   |   (message "Good bye, after load")
+;;   |
+;;   |   ;; Instead, list of sexp is not allowed
+;;   |   ;; :eval-after-load
+;;   |   ;; ((message "Hello, after load")
+;;   |   ;;  (message "Good bye, after load"))
+;;   |
+;;   |   :define-key
+;;   |   (global-map
+;;   |    ("M-a" . #'beginning-of-defun))
+;;   |   (esc-map
+;;   |    ("e" . #'end-of-defun))
+;;   |
+;;   |   ;; Other keyword is not affected by inputter
+;;   |   :package
+;;   |   (ivy hydra))
+;;   `----
+
+
+;; * 5.1.4.3 Adopt a parent other than `mic', `mic-core' and its derivation
 
 ;;   You can use other configuration managers, such as [use-package] and
 ;;   [leaf.el].  However, filters defined by `mic' output keyword for `mic'
