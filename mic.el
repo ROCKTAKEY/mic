@@ -5,7 +5,7 @@
 ;; Author: ROCKTAKEY <rocktakey@gmail.com>
 ;; Keywords: convenience
 
-;; Version: 0.37.0
+;; Version: 0.37.1
 ;; Package-Requires: ((emacs "26.1"))
 ;; URL: https://github.com/ROCKTAKEY/mic
 
@@ -1846,7 +1846,9 @@ Information:
 For more information, see `mic-defmic'."
                     (mapconcat
                      (lambda (arg)
-                       (concat "  - `" (pp-to-string arg) "'"))
+                       (concat "  - `"
+                               (if (symbolp arg) (symbol-name arg) (pp-to-string arg))
+                               "'"))
                      filters
                      "\n")
                     parent
