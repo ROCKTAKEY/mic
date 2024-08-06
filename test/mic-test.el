@@ -381,8 +381,8 @@ For more information, see `mic-defmic'."
 
 
 (mic-deffilter-const-append mic-test-filter-const-1
-    :foo '(1)
-    :bar '(2 3))
+  :foo '(1)
+  :bar '(2 3))
 
 (mic-deffilter-const-append mic-test-filter-const-2
   :foo '(4 5)
